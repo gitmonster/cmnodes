@@ -1,47 +1,41 @@
 package nodes
 
+
 import (
 	"net/http"
     "reflect"
 	"github.com/denkhaus/cmnodes/render"
 )
 
-type TextNode struct {
+type FolderNode struct {
 	NodeBase
-	Content    NodeContent `bson:"c"`
-	IsTemplate bool        `bson:"ist"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func init(){
-    RegisterNode(new(TextNode))
+    RegisterNode(new(FolderNode))
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *TextNode) IsChildAllowed(typeName string) bool {
-	return false
+	return true
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *TextNode) SetupRendering() {
 	n.engine.mux.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
-		// Assumes you have a template in ./templates called "example.tmpl"
-		// $ mkdir -p templates && echo "<h1>Hello HTML world.</h1>" > templates/example.tmpl
-		n.render.HTML(w, http.StatusOK, "example", nil)
+		w.Write([]byte("This is a folder."))
 	})
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func NewTextNode(engine *Engine) *TextNode {
-	node := TextNode{}
+func NewFolderNode(engine *Engine) *FolderNode {
+	node := FolderNode{}
 	node.TypeName = reflect.TypeOf(node).Name()
 	node.render = render.New()
 	node.MimeType = "text/html"
-	node.IsTemplate = false
 	node.engine = engine
 
 	return &node
 }
+
