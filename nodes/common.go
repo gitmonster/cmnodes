@@ -1,5 +1,7 @@
 package nodes
 
+import "time"
+
 const (
 	EMPTY_STRING = ""
 )
@@ -8,8 +10,15 @@ type Node interface {
 	SetupRendering()
 	Move(parentId string) error
 	Delete() error
-	IsChildAllowed(typeName string ) bool
+	IsChildAllowed(typeName string) bool
 }
+
+const (
+	DURATION_NULL  = time.Second * 0
+	DURATION_DAY   = time.Hour * 24
+	DURATION_WEEK  = DURATION_DAY * 7
+	DURATION_MONTH = DURATION_DAY * 30
+)
 
 //
 // func (e *Engine) RenderData(node Node) error {

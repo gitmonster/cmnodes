@@ -1,10 +1,10 @@
 package nodes
 
-
 import (
 	"net/http"
-    "reflect"
-	"github.com/denkhaus/cmnodes/render"
+	"reflect"
+
+	"github.com/gitmonster/cmnodes/render"
 )
 
 type FolderNode struct {
@@ -12,17 +12,17 @@ type FolderNode struct {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func init(){
-    RegisterNode(new(FolderNode))
+func init() {
+	RegisterNode(new(FolderNode))
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *TextNode) IsChildAllowed(typeName string) bool {
+func (n *FolderNode) IsChildAllowed(typeName string) bool {
 	return true
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *TextNode) SetupRendering() {
+func (n *FolderNode) SetupRendering() {
 	n.engine.mux.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("This is a folder."))
 	})
@@ -38,4 +38,3 @@ func NewFolderNode(engine *Engine) *FolderNode {
 
 	return &node
 }
-

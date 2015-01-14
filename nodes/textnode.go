@@ -2,8 +2,9 @@ package nodes
 
 import (
 	"net/http"
-    "reflect"
-	"github.com/denkhaus/cmnodes/render"
+	"reflect"
+
+	"github.com/gitmonster/cmnodes/render"
 )
 
 type TextNode struct {
@@ -13,17 +14,14 @@ type TextNode struct {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func init(){
-    RegisterNode(new(TextNode))
+func init() {
+	RegisterNode(new(TextNode))
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *TextNode) IsChildAllowed(typeName string) bool {
 	return false
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *TextNode) SetupRendering() {

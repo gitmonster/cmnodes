@@ -1,6 +1,6 @@
 package nodes
 
-import "github.com/denkhaus/cmnodes/render"
+import "github.com/gitmonster/cmnodes/render"
 
 type NodeBase struct {
 	Id            string `bson:"_id"`
@@ -10,8 +10,8 @@ type NodeBase struct {
 	TypeName      string `bson:"tn"`
 	Route         string `bson:"r"`
 	RegisterRoute bool   `bson:"rr"`
-	render *render.Render
-	engine *Engine
+	render        *render.Render
+	engine        *Engine
 }
 
 ////////////////////////////////////////////////////////////////////////////////
