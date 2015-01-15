@@ -1,19 +1,23 @@
 package nodes
 
-import "time"
+import (
+	"bufio"
+	"time"
+)
 
 const (
 	EMPTY_STRING = ""
 )
 
 type Node interface {
+	RenderEditContent(w *bufio.Writer) error
 	IsChildAllowed(typeName string) bool
 	SetParentId(parentId string)
 	Move(parentId string) error
 	SetName(name string)
-	SetupRendering()
+	RegisterRoute()
 	SetId(id string)
-	Delete() error
+	Remove() error
 }
 
 const (
@@ -23,17 +27,11 @@ const (
 	DURATION_MONTH = DURATION_DAY * 30
 )
 
-
 const (
-	NODES_COLLECTION_NAME = "nodes"
+	NODES_COLLECTION_NAME  = "nodes"
+	PROTOS_COLLECTION_NAME = "protos"
+	SYSTEM_COLLECTION_NAME = "system"
 )
-
-
-
-
-
-
-
 
 //
 // func (e *Engine) RenderData(node Node) error {

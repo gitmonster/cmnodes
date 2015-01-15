@@ -11,14 +11,14 @@ import (
 	"github.com/rcrowley/go-metrics"
 	"github.com/rcrowley/go-metrics/librato"
 	"labix.org/v2/mgo"
-	"labix.org/v2/bson"
+	"labix.org/v2/mgo/bson"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 type EngineFunc func(engine *Engine) error
 
 type Engine struct {
-    Loggable
+	Loggable
 	MongoSessionProvider
 	mux     *mux.Router
 	negroni *negroni.Negroni
@@ -40,66 +40,73 @@ func RegisterNodeType(node interface{}) {
 	TypeMap[t.Name()] = t
 }
 
-
 type EnumFunc func(node Node) error
+
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) EnumerateChilds(nodeId string, fn EnumFunc) error {
-    session, coll := e.GetMgoSession(NODES_COLLECTION_NAME)
+	session, coll := e.GetMgoSession(NODES_COLLECTION_NAME)
 	defer session.Close()
 
-	iter:= coll.Find(bson.M{"p":nodeId}).Iter()
-	if err:= iter.Err(); err != nil{
-	    return err
-    }
+	iter := coll.Find(bson.M{"p": nodeId}).Iter()
+	if err := iter.Err(); err != nil {
+		return err
+	}
 
-    node := NodeBase{}
-    for iter.Next(&node){
+	var node interface{}
+	for iter.Next(&node) {
+		if n, ok := node.(Node); !ok {
+			return fmt.Errorf("EnumerateChilds::Could not assert child to Node type")
+		} else {
+			if err := fn(n); err != nil {
+				return err
+			}
+		}
+	}
 
-    }
+	if err := iter.Close(); err != nil {
+		return err
+	}
 
-    if err:= iter.Close(); err != nil{
-	    return err
-    }
-
-    return nil
+	return nil
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) CheckNodeIsNoChild(nodeId string, parentNodeId string) (bool, error) {
-    if nodeId == parentNodeId{
-        return false, nil
-    }
+	if nodeId == parentNodeId {
+		return false, nil
+	}
 
-    session, coll := e.GetMgoSession(NODES_COLLECTION_NAME)
+	session, coll := e.GetMgoSession(NODES_COLLECTION_NAME)
 	defer session.Close()
 
-	iter:= coll.Find(bson.M{"p":nodeId}).Iter()
-	if err:= iter.Err(); err != nil{
-	    return err
-    }
+	iter := coll.Find(bson.M{"p": nodeId}).Iter()
+	if err := iter.Err(); err != nil {
+		return false, err
+	}
 
-    node := NodeBase{}
-    for iter.Next(&node){
-        if nodeId == node.Id{
-           return false, nil
-        }
-    }
+	node := NodeBase{}
+	for iter.Next(&node) {
+		if nodeId == node.Id {
+			return false, nil
+		}
+	}
 
-    if err:= iter.Close(); err != nil{
-	    return err
-    }
+	if err := iter.Close(); err != nil {
+		return false, err
+	}
 
-    return true, nil
+	return true, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) NodeExists(nodeId string) (bool,error) {
-    session, coll := e.GetMgoSession(NODES_COLLECTION_NAME)
+func (e *Engine) NodeExists(nodeId string) (bool, error) {
+	session, coll := e.GetMgoSession(NODES_COLLECTION_NAME)
 	defer session.Close()
 
-	if err, cnt:= coll.FindId(srcNodeId).Count(); err != nil{
-	    return false, err
-	}else if cnt == 1{
-	    return true, nil
+	if cnt, err := coll.FindId(nodeId).Count(); err != nil {
+		return false, err
+	} else if cnt == 1 {
+		return true, nil
 	}
 
 	return false, nil
@@ -107,67 +114,67 @@ func (e *Engine) NodeExists(nodeId string) (bool,error) {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) MoveNode(srcNodeId, targetNodeId string) error {
-    session, coll := e.GetMgoSession(NODES_COLLECTION_NAME)
+	session, coll := e.GetMgoSession(NODES_COLLECTION_NAME)
 	defer session.Close()
 
-    // check if source node exists
-    if ex, err:= e.NodeExists(srcNodeId); err != nil{
-        return err
-    }else if ! ex{
-        return fmt.Errorf("MoveNode::Source node %s doesn't exist.", targetNodeId)
-    }
-
-    // check if target node exists
-    if ex, err:= e.NodeExists(targetNodeId); err != nil{
-        return err
-    }else if ! ex{
-        return fmt.Errorf("MoveNode::Target node %s doesn't exist.", targetNodeId)
-    }
-
-    if ok:= e.CheckNodeIsNoChild(srcNodeId, targetNodeId); err != nil{
-        return err
-    }else if !ok{
-        return fmt.Errorf("MoveNode::Source node %s is already a child of Target node %s.", srcNodeId, targetNodeId)
-    }
-
-    set:= bson.M{"$set": bson.M{
-        "p": targetNodeId, //set parent to targetNodeId
-        "o": 0, //set order to 0
-    }}
-
-	if err:= coll.UpdateId(srcNodeId,set); err != nil{
-        return err
+	// check if source node exists
+	if ex, err := e.NodeExists(srcNodeId); err != nil {
+		return err
+	} else if !ex {
+		return fmt.Errorf("MoveNode::Source node %s doesn't exist.", targetNodeId)
 	}
 
-    return nil
+	// check if target node exists
+	if ex, err := e.NodeExists(targetNodeId); err != nil {
+		return err
+	} else if !ex {
+		return fmt.Errorf("MoveNode::Target node %s doesn't exist.", targetNodeId)
+	}
+
+	if ok, err := e.CheckNodeIsNoChild(srcNodeId, targetNodeId); err != nil {
+		return err
+	} else if !ok {
+		return fmt.Errorf("MoveNode::Source node %s is already a child of Target node %s.", srcNodeId, targetNodeId)
+	}
+
+	set := bson.M{"$set": bson.M{
+		"p": targetNodeId, //set parent to targetNodeId
+		"o": 0,            //set order to 0
+	}}
+
+	if err := coll.UpdateId(srcNodeId, set); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) RemoveNode(nodeId string) error {
-    session, coll := e.GetMgoSession(NODES_COLLECTION_NAME)
+	session, coll := e.GetMgoSession(NODES_COLLECTION_NAME)
 	defer session.Close()
 
 	// delete childs
-	iter:= coll.Find(bson.M{"p":nodeId}).Iter()
-	if err:= iter.Err(); err != nil{
-	    return err
-    }
+	iter := coll.Find(bson.M{"p": nodeId}).Iter()
+	if err := iter.Err(); err != nil {
+		return err
+	}
 
-    node := NodeBase{}
-    for iter.Next(&node){
-        e.RemoveNode(node.Id)
-    }
+	node := NodeBase{}
+	for iter.Next(&node) {
+		e.RemoveNode(node.Id)
+	}
 
-    if err:= iter.Close(); err != nil{
-	    return err
-    }
+	if err := iter.Close(); err != nil {
+		return err
+	}
 
-    // delete node
-    if err:= coll.RemoveId(nodeId); err != nil{
-        return err
-    }
+	// delete node
+	if err := coll.RemoveId(nodeId); err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -178,8 +185,22 @@ func (e *Engine) CreateNewNode(parentId, name, nodeType string) (Node, error) {
 		n := reflect.New(t).Elem().Interface()
 		node, ok := n.(Node)
 
-		if !ok{
-		    return nil, fmt.Errorf("CreateNode::Unable to create Node for nodetype %s." nodeType)
+		if !ok {
+			return nil, fmt.Errorf("CreateNode::Unable to create Node for nodetype %s.", nodeType)
+		}
+
+		protoSession, protoColl := e.GetMgoSession(PROTOS_COLLECTION_NAME)
+		defer protoSession.Close()
+
+		query := protoColl.Find(bson.M{"tn": nodeType})
+		if cnt, err := query.Count(); err != nil {
+			return nil, err
+		} else if cnt == 0 {
+			return nil, fmt.Errorf("CreateNode::Prototype for NodeType %s is not available", nodeType)
+		}
+
+		if err := query.One(&node); err != nil {
+			return nil, err
 		}
 
 		node.SetId(bson.NewObjectId().Hex())
@@ -189,8 +210,8 @@ func (e *Engine) CreateNewNode(parentId, name, nodeType string) (Node, error) {
 		session, coll := e.GetMgoSession(NODES_COLLECTION_NAME)
 		defer session.Close()
 
-		if err := coll.Insert(n); err != nil{
-            return nil, err
+		if err := coll.Insert(n); err != nil {
+			return nil, err
 		}
 
 		return node, nil
@@ -198,7 +219,28 @@ func (e *Engine) CreateNewNode(parentId, name, nodeType string) (Node, error) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) RegisterAllRoutes() error {
+func (e *Engine) RegisterAllRoutes(collName string) error {
+	session, coll := e.GetMgoSession(collName)
+	defer session.Close()
+
+	iter := coll.Find(bson.M{"rr": true}).Iter()
+	if err := iter.Err(); err != nil {
+		return err
+	}
+
+	var node interface{}
+	for iter.Next(&node) {
+		if n, ok := node.(Node); !ok {
+			return fmt.Errorf("RegisterAllRoutes::Could not assert child to Node type")
+		} else {
+			n.RegisterRoute()
+		}
+	}
+
+	if err := iter.Close(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -211,17 +253,33 @@ func (e *Engine) AssembleRouteFor(nodeId string) string {
 func (e *Engine) Startup(connection string) error {
 	e.mux = mux.NewRouter()
 
-	mainRouter := mux.NewRouter()
-	subRouter := mainRouter.PathPrefix("/").Subrouter()
+	systemRouter:= mux.Router()
+	e.mux.PathPrefix("/nodes").Handler(negroni.New(
+		negroni.NewRecovery(),
+		negroni.HandlerFunc(MyMiddleware),
+		negroni.NewLogger(),
+		negroni.Wrap(systemRouter),
+		))
 
-	subRouter.HandleFunc("/test1", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "test1") })
-	subRouter.HandleFunc("/test2", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "test2") })
+		e.SystemRouter := systemRouter.PathPrefix("/nodes").Subrouter()
+	// 	acct.Path("/profile").HandlerFunc(ProfileHandler)
+	//
+	//
+	//
+	// subRouter := e.mux.PathPrefix("/nodes").Subrouter()
+	//
+	// subRouter.HandleFunc("/test1", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "test1") })
+	// subRouter.HandleFunc("/test2", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "test2") })
 
-	mainRouter.Handle("/", mainRouter)
-
-	if err := e.RegisterAllRoutes(); err != nil {
+	if err := e.RegisterAllRoutes(NODES_COLLECTION_NAME); err != nil {
 		return err
 	}
+	if err := e.RegisterAllRoutes(SYSTEM_COLLECTION_NAME); err != nil {
+		return err
+	}
+	//	Accounts
+
+
 
 	e.negroni = negroni.Classic()
 	e.negroni.UseHandler(e.mux)
@@ -238,8 +296,8 @@ func (e *Engine) Execute(fn EngineFunc) error {
 func NewEngine(config *NodesConfig) (*Engine, error) {
 	eng := Engine{}
 
-    eng.SetLogger(eng.GetLogger("engine"))
-    
+	eng.SetLogger(eng.GetLogger("engine"))
+
 	if lConfig, err := config.GetLibratoConfig(); err != nil {
 		return nil, err
 	} else {

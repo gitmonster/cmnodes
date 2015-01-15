@@ -22,7 +22,7 @@ func (n *FolderNode) IsChildAllowed(typeName string) bool {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *FolderNode) SetupRendering() {
+func (n *FolderNode) RegisterRoute() {
 	n.engine.mux.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("This is a folder."))
 	})
