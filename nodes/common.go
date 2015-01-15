@@ -7,10 +7,13 @@ const (
 )
 
 type Node interface {
-	SetupRendering()
-	Move(parentId string) error
-	Delete() error
 	IsChildAllowed(typeName string) bool
+	SetParentId(parentId string)
+	Move(parentId string) error
+	SetName(name string)
+	SetupRendering()
+	SetId(id string)
+	Delete() error
 }
 
 const (
@@ -19,6 +22,18 @@ const (
 	DURATION_WEEK  = DURATION_DAY * 7
 	DURATION_MONTH = DURATION_DAY * 30
 )
+
+
+const (
+	NODES_COLLECTION_NAME = "nodes"
+)
+
+
+
+
+
+
+
 
 //
 // func (e *Engine) RenderData(node Node) error {

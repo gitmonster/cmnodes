@@ -1,6 +1,10 @@
 package nodes
 
-import "github.com/gitmonster/cmnodes/render"
+import (
+    "github.com/gitmonster/cmnodes/render"
+    "text"
+    "bufio"
+)
 
 type NodeBase struct {
 	Id            string `bson:"_id"`
@@ -8,11 +12,28 @@ type NodeBase struct {
 	Order         int    `bson:"o"`
 	MimeType      string `bson:"m"`
 	TypeName      string `bson:"tn"`
-	Route         string `bson:"r"`
+	Route         string `bson:"rt"`
 	RegisterRoute bool   `bson:"rr"`
+	EditRep     Representation   `bson:"er"`
 	render        *render.Render
 	engine        *Engine
 }
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+func (n *NodeBase) RenderEditContent(w *bufio.Writer) error{
+    n.EditRep.Render(w)
+    return n.EnumerateChilds(func(){
+
+    })
+}
+
+
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) assembleRoute() string {
@@ -21,10 +42,10 @@ func (n *NodeBase) assembleRoute() string {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) Move(parentId string) error {
-	return nil
+	return n.engine.MoveNode(Id, parentId)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) Delete() error {
-	return nil
+	return n.engine.DeleteNode(Id)
 }
