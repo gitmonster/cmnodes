@@ -15,7 +15,7 @@ type Node interface {
 	SetParentId(parentId string)
 	Move(parentId string) error
 	SetName(name string)
-	RegisterRoute()
+	RegisterRoute(mux.Router) error
 	SetId(id string)
 	Remove() error
 }
@@ -28,10 +28,23 @@ const (
 )
 
 const (
-	NODES_COLLECTION_NAME  = "nodes"
-	PROTOS_COLLECTION_NAME = "protos"
-	SYSTEM_COLLECTION_NAME = "system"
+    SYSTEM_SCOPE = "nodes"
+	PROTOS_SCOPE = "protos"
 )
+
+
+
+
+
+// 	acct.Path("/profile").HandlerFunc(ProfileHandler)
+	//
+	//
+	//
+	// subRouter := e.mux.PathPrefix("/nodes").Subrouter()
+	//
+	// subRouter.HandleFunc("/test1", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "test1") })
+	// subRouter.HandleFunc("/test2", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "test2") })
+
 
 //
 // func (e *Engine) RenderData(node Node) error {

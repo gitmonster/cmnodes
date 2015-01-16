@@ -24,8 +24,8 @@ func (n *TextNode) IsChildAllowed(typeName string) bool {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *TextNode) RegisterRoute() {
-	n.engine.mux.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
+func (n *TextNode) RegisterRoute( router mux.Router) {
+	router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
 		// Assumes you have a template in ./templates called "example.tmpl"
 		// $ mkdir -p templates && echo "<h1>Hello HTML world.</h1>" > templates/example.tmpl
 		n.render.HTML(w, http.StatusOK, "example", nil)

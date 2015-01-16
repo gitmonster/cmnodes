@@ -17,8 +17,8 @@ func init() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *SCSSStyleNode) RegisterRoute() {
-	n.engine.mux.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
+func (n *SCSSStyleNode) RegisterRoute(router mux.Router) {
+	router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("Content here."))
 	})
 }
