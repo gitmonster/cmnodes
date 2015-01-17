@@ -220,7 +220,7 @@ func (e *Engine) CreateInstanceByType(nodeType string) (Node, error) {
 		}
 
 		node := fn()
-		if err := query.One(&node); err != nil {
+		if err := query.One(node); err != nil {
 			return nil, err
 		}
 
