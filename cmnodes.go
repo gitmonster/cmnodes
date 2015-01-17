@@ -9,6 +9,7 @@ import (
 	"github.com/gitmonster/cmnodes/nodes"
 )
 
+var initFileName = ".cmnodesrc"
 var releaseVersion = "0.0.1"
 
 func main() {
@@ -24,7 +25,7 @@ func main() {
 		//cli.StringSliceFlag{"peers, C", &cli.StringSlice{}, "a comma-delimited list of machine addresses in the cluster (default: {\"127.0.0.1:4001\"})"},
 	}
 
-	if cnf, err := nodes.CreateNodesConfig(); err != nil {
+	if cnf, err := nodes.CreateNodesConfig(initFileName); err != nil {
 		applog.Errorf("Configuration error:: load config %s", err.Error())
 		return
 	} else {

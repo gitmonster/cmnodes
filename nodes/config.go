@@ -85,32 +85,33 @@ func (c *NodesConfig) GetLibratoConfig() (map[string]interface{}, error) {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
-func (c *NodesConfig) Init() error {
-	c.Config = yamlconfig.NewConfig(".votexrc")
+func (c *NodesConfig) Init(fileName string) error {
+	c.Config = yamlconfig.NewConfig(fileName)
 	if err := c.Load(func(config *yamlconfig.Config) {
 		/*
-		   config.SetDefault("bsclient:hosts:host", "127.0.0.1")
-		   config.SetDefault("bsclient:rpc:port", 5680)
-		   config.SetDefault("bsclient:rpc:path", "/rpc")
-		   config.SetDefault("bsclient:rpc:username", "your-username")
-		   config.SetDefault("bsclient:rpc:password", "your-password")
-		   config.SetDefault("bsclient:rpc:use-ssl", false)
+			   config.SetDefault("bsclient:hosts:host", "127.0.0.1")
+			   config.SetDefault("bsclient:rpc:port", 5680)
+			   config.SetDefault("bsclient:rpc:path", "/rpc")
+			   config.SetDefault("bsclient:rpc:username", "your-username")
+			   config.SetDefault("bsclient:rpc:password", "your-password")
+			   config.SetDefault("bsclient:rpc:use-ssl", false)
+
+
+			config.SetDefault("bsclient:default", "please specify defaultacct")
+			config.SetDefault("bsclient:tip:account", "happytip")
+			config.SetDefault("bsclient:tip:message", "From happyshares with love")
+
+			config.SetDefault("storage:poolsize", 10)
+			config.SetDefault("storage:network", "tcp")
+			config.SetDefault("storage:address", ":6379")
+			config.SetDefault("storage:password", "")
+			config.SetDefault("storage:queuedb", 9)
+
+			config.SetDefault("system:payout:minpayoutamount", 0.5)
+			config.SetDefault("system:payout:multiplier", 0.5)
+			config.SetDefault("system:payout:payoutaccount", "!Specify PayoutAccount")
+			config.SetDefault("system:payout:trxcomment", "From happyshares with love")
 		*/
-
-		config.SetDefault("bsclient:default", "please specify defaultacct")
-		config.SetDefault("bsclient:tip:account", "happytip")
-		config.SetDefault("bsclient:tip:message", "From happyshares with love")
-
-		config.SetDefault("storage:poolsize", 10)
-		config.SetDefault("storage:network", "tcp")
-		config.SetDefault("storage:address", ":6379")
-		config.SetDefault("storage:password", "")
-		config.SetDefault("storage:queuedb", 9)
-
-		config.SetDefault("system:payout:minpayoutamount", 0.5)
-		config.SetDefault("system:payout:multiplier", 0.5)
-		config.SetDefault("system:payout:payoutaccount", "!Specify PayoutAccount")
-		config.SetDefault("system:payout:trxcomment", "From happyshares with love")
 	}, "", false); err != nil {
 		return err
 	}
@@ -121,9 +122,9 @@ func (c *NodesConfig) Init() error {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
-func CreateNodesConfig() (*NodesConfig, error) {
+func CreateNodesConfig(fileName string) (*NodesConfig, error) {
 	cfig := &NodesConfig{}
-	if err := cfig.Init(); err != nil {
+	if err := cfig.Init(fileName); err != nil {
 		return nil, err
 	}
 	return cfig, nil

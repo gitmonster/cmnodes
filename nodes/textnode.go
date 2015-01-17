@@ -2,22 +2,20 @@ package nodes
 
 import (
 	"net/http"
-	"reflect"
 
-	"github.com/gitmonster/cmnodes/render"
 	"github.com/gorilla/mux"
 )
 
 type TextNode struct {
-	NodeBase
+	NodeBase   `bson:",inline"`
 	Content    NodeContent `bson:"c"`
 	IsTemplate bool        `bson:"ist"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func init() {
-	RegisterNodeType(TextNode{}, func() Node {
-		node := Node(new(TextNode))
+	RegisterNodeType(TextNode{}, func(engine *Engine) Node {
+		node := Node(NewTextNode(engine))
 		return node
 	})
 }
@@ -32,18 +30,16 @@ func (n *TextNode) RegisterRoute(router *mux.Router) {
 	router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
 		// Assumes you have a template in ./templates called "example.tmpl"
 		// $ mkdir -p templates && echo "<h1>Hello HTML world.</h1>" > templates/example.tmpl
-		n.render.HTML(w, http.StatusOK, "example", nil)
+		n.Render.HTML(w, http.StatusOK, "example", nil)
 	})
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func NewTextNode(engine *Engine) *TextNode {
 	node := TextNode{}
-	node.TypeName = reflect.TypeOf(node).Name()
-	node.render = render.New()
+	node.Init(node, engine)
 	node.MimeType = "text/html"
 	node.IsTemplate = false
-	node.engine = engine
 
 	return &node
 }

@@ -15,17 +15,17 @@ type Commander struct {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// func (c *Commander) Execute(fn engine.EngineFunc, ctx *cli.Context) {
-// 	//if ctx.GlobalBool("debug") {
-// 	//	c.Logger.SetLevel(engine.LevelDebug)
-// 	//} else {
-// 	//	c.Logger.SetLevel(engine.LevelInfo)
-// 	//}
-//
-// 	if err := c.engine.Execute(fn); err != nil {
-// 		c.Logger.Errorf("Execution error:: %s", err.Error())
-// 	}
-// }
+func (c *Commander) Execute(fn nodes.EngineFunc, ctx *cli.Context) {
+	//if ctx.GlobalBool("debug") {
+	//	c.Logger.SetLevel(engine.LevelDebug)
+	//} else {
+	//	c.Logger.SetLevel(engine.LevelInfo)
+	//}
+
+	if err := c.engine.Execute(fn); err != nil {
+		c.Logger.Errorf("Execution error:: %s", err.Error())
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -38,10 +38,7 @@ func NewCommander(app *cli.App, cnf *nodes.NodesConfig) (*Commander, error) {
 		cmd.engine = engine
 	}
 
-	// cmd.NewStatusCommand()
-	// cmd.NewTestCommand()
-	// cmd.NewDelegateStatusCommand()
-	// cmd.NewScanBlockchainCommand()
+	cmd.NewInitProtosCommand()
 	return cmd, nil
 }
 

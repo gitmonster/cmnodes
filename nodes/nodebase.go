@@ -1,10 +1,10 @@
 package nodes
 
 import (
+	"bufio"
+
 	"github.com/gitmonster/cmnodes/render"
 	"labix.org/v2/mgo/bson"
-
-	"bufio"
 )
 
 type NodeBase struct {
@@ -18,8 +18,27 @@ type NodeBase struct {
 	RegisterRoute bool           `bson:"rr"`
 	EditRep       Representation `bson:"er"`
 	Scope         string         `bson:"sp"`
-	render        *render.Render
-	engine        *Engine
+	Render        *render.Render `bson:"-"`
+	Engine        *Engine        `bson:"-"`
+	Loggable      `bson:"-"`
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (n *NodeBase) Init(inst interface{}, e *Engine) {
+	n.TypeName = GetNodeTypeName(inst)
+	n.SetLogger(e.NewLogger(n.TypeName))
+	n.Render = render.New()
+	n.Engine = e
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (n *NodeBase) SetEditTemplate(content string) {
+	n.EditRep.Content = content
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (n *NodeBase) SetObjectId(objectId string) {
+	n.Id = objectId
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,20 +68,20 @@ func (n *NodeBase) RenderEditContent(w *bufio.Writer) error {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) EnumerateChilds(fn EnumFunc) error {
-	return n.engine.EnumerateChilds(n.Scope, n.Id, fn)
+	return n.Engine.EnumerateChilds(n.Scope, n.Id, fn)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) assembleRoute() string {
-	return n.engine.AssembleRouteFor(n.Scope, n.Id)
+	return n.Engine.AssembleRouteFor(n.Scope, n.Id)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) Move(parentId string) error {
-	return n.engine.MoveNode(n.Scope, n.TypeName, n.Id, parentId)
+	return n.Engine.MoveNode(n.Scope, n.TypeName, n.Id, parentId)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) Remove() error {
-	return n.engine.RemoveNode(n.Scope, n.Id)
+	return n.Engine.RemoveNode(n.Scope, n.Id)
 }

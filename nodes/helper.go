@@ -6,10 +6,16 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"labix.org/v2/mgo"
 )
+
+func Inspect(args ...interface{}) {
+	spew.Dump(args)
+}
 
 type MongoSessionProvider struct {
 	Session *mgo.Session
@@ -17,14 +23,14 @@ type MongoSessionProvider struct {
 
 func (p MongoSessionProvider) GetMgoSession(collName string) (*mgo.Session, *mgo.Collection) {
 	sess := p.Session.Copy()
-	coll := sess.DB("bitexplorer").C(collName)
+	coll := sess.DB("cmnodes").C(collName)
 	return sess, coll
 }
 
-func (p MongoSessionProvider) GetMgoDynamicSession(collName string) (*mgo.Session, *mgo.Collection) {
-	sess := p.Session.Copy()
-	coll := sess.DB("bitexdyn").C(collName)
-	return sess, coll
+////////////////////////////////////////////////////////////////////////////////
+func GetNodeTypeName(node interface{}) string {
+	t := reflect.TypeOf(node)
+	return strings.ToLower(t.Name())
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,10 @@ package nodes
 
 import (
 	"fmt"
-	"reflect"
+	"io/ioutil"
+	"os"
+	"path"
+	"path/filepath"
 	"time"
 
 	"github.com/codegangsta/negroni"
@@ -19,8 +22,9 @@ type EngineFunc func(engine *Engine) error
 type Engine struct {
 	Loggable
 	MongoSessionProvider
-	negroni *negroni.Negroni
-	Config  *NodesConfig
+	negroni    *negroni.Negroni
+	Config     *NodesConfig
+	StartupDir string
 }
 
 var (
@@ -33,12 +37,11 @@ func init() {
 }
 
 type EnumFunc func(node Node) error
-type NewNodeFunc func() Node
+type NewNodeFunc func(engine *Engine) Node
 
 ////////////////////////////////////////////////////////////////////////////////
 func RegisterNodeType(node interface{}, fn NewNodeFunc) {
-	t := reflect.TypeOf(node)
-	TypeMap[t.Name()] = fn
+	TypeMap[GetNodeTypeName(node)] = fn
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -212,14 +215,14 @@ func (e *Engine) CreateInstanceByType(nodeType string) (Node, error) {
 		session, coll := e.GetMgoSession(PROTOS_SCOPE)
 		defer session.Close()
 
-		query := coll.Find(bson.M{"tn": nodeType})
+		query := coll.FindId(nodeType)
 		if cnt, err := query.Count(); err != nil {
 			return nil, err
 		} else if cnt == 0 {
 			return nil, fmt.Errorf("CreateInstanceByType::Prototype for NodeType %s is not available", nodeType)
 		}
 
-		node := fn()
+		node := fn(e)
 		if err := query.One(node); err != nil {
 			return nil, err
 		}
@@ -227,8 +230,6 @@ func (e *Engine) CreateInstanceByType(nodeType string) (Node, error) {
 		node.NewObjectId()
 		return node, nil
 	}
-
-	return nil, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -306,15 +307,99 @@ func (e *Engine) Startup(connection string) error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+func (e *Engine) LoadProtoContent(typeName, section string) (string, error) {
+
+	name := fmt.Sprintf("%s.%s", typeName, section)
+	pt := path.Join(e.StartupDir, "scopes", "protos", name)
+
+	if _, err := os.Stat(pt); err != nil {
+		if os.IsNotExist(err) {
+			return EMPTY_STRING, nil
+		} else {
+			return EMPTY_STRING, err
+		}
+	}
+
+	if buf, err := ioutil.ReadFile(pt); err != nil {
+		return EMPTY_STRING, err
+	} else {
+		return string(buf), nil
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (e *Engine) ImportPrototypes(force bool) error {
+	e.Logger.Infof("Import prototypes")
+
+	session, coll := e.GetMgoSession(PROTOS_SCOPE)
+	defer session.Close()
+
+	if force {
+		coll.RemoveAll(nil)
+	}
+
+	for tp, fn := range TypeMap {
+		query := coll.FindId(tp)
+		if cnt, err := query.Count(); err != nil {
+			return err
+		} else if cnt == 0 {
+			e.Logger.Infof("Import prototype for %s", tp)
+
+			node := fn(e)
+			node.SetObjectId(tp)
+
+			if cont, err := e.LoadProtoContent(tp, "edit"); err != nil {
+				return err
+			} else {
+				node.SetEditTemplate(cont)
+			}
+
+			if err := coll.Insert(node); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (e *Engine) EnsurePrototypes() error {
+
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (e *Engine) EnsureSystem() error {
+	if err := e.EnsurePrototypes(); err != nil {
+		return err
+	}
+
+	_, err := e.CreateNewNode(SYSTEM_SCOPE, EMPTY_STRING,
+		"System", NODETYPE_SITE)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) Execute(fn EngineFunc) error {
 	return fn(e)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func NewEngine(config *NodesConfig) (*Engine, error) {
-	eng := Engine{}
+	eng := Engine{Config: config}
+	eng.SetLogger(eng.NewLogger("engine"))
 
-	eng.SetLogger(eng.GetLogger("engine"))
+	if dir, err := filepath.Abs(filepath.Dir(os.Args[0])); err != nil {
+		return nil, err
+	} else {
+		eng.StartupDir = dir
+	}
 
 	if lConfig, err := config.GetLibratoConfig(); err != nil {
 		return nil, err
@@ -342,5 +427,6 @@ func NewEngine(config *NodesConfig) (*Engine, error) {
 		}
 	}
 
+	eng.EnsureSystem()
 	return &eng, nil
 }

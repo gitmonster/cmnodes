@@ -2,20 +2,18 @@ package nodes
 
 import (
 	"net/http"
-	"reflect"
 
-	"github.com/gitmonster/cmnodes/render"
 	"github.com/gorilla/mux"
 )
 
 type FolderNode struct {
-	NodeBase
+	NodeBase `bson:",inline"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func init() {
-	RegisterNodeType(FolderNode{}, func() Node {
-		node := Node(new(FolderNode))
+	RegisterNodeType(FolderNode{}, func(engine *Engine) Node {
+		node := Node(NewFolderNode(engine))
 		return node
 	})
 }
@@ -35,10 +33,7 @@ func (n *FolderNode) RegisterRoute(router *mux.Router) {
 ////////////////////////////////////////////////////////////////////////////////
 func NewFolderNode(engine *Engine) *FolderNode {
 	node := FolderNode{}
-	node.TypeName = reflect.TypeOf(node).Name()
-	node.render = render.New()
+	node.Init(node, engine)
 	node.MimeType = "text/html"
-	node.engine = engine
-
 	return &node
 }

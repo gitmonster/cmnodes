@@ -2,44 +2,39 @@ package nodes
 
 import (
 	"net/http"
-	"reflect"
 
-	"github.com/gitmonster/cmnodes/render"
 	"github.com/gorilla/mux"
 )
 
-type SCSSStyleNode struct {
-	TextNode
+type StyleNode struct {
+	TextNode `bson:",inline"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func init() {
-	RegisterNodeType(SCSSStyleNode{}, func() Node {
-		node := Node(new(SCSSStyleNode))
+	RegisterNodeType(StyleNode{}, func(engine *Engine) Node {
+		node := Node(NewStyleNode(engine))
 		return node
 	})
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *SCSSStyleNode) RegisterRoute(router *mux.Router) {
+func (n *StyleNode) RegisterRoute(router *mux.Router) {
 	router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("Content here."))
 	})
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *SCSSStyleNode) IsChildAllowed(typeName string) bool {
+func (n *StyleNode) IsChildAllowed(typeName string) bool {
 	return false
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func NewSCSSStyleNode(engine *Engine) *SCSSStyleNode {
-	node := SCSSStyleNode{}
-	node.TypeName = reflect.TypeOf(node).Name()
-	node.render = render.New()
+func NewStyleNode(engine *Engine) *StyleNode {
+	node := StyleNode{}
+	node.Init(node, engine)
 	node.MimeType = "text/css"
 	node.IsTemplate = false
-	node.engine = engine
-
 	return &node
 }

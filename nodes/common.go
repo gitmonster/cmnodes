@@ -17,6 +17,8 @@ type Node interface {
 	SetParentId(parentId string)
 	Move(parentId string) error
 	SetName(name string)
+	SetEditTemplate(content string)
+	SetObjectId(objectId string)
 	NewObjectId()
 	RegisterRoute(router *mux.Router)
 	Remove() error
@@ -32,6 +34,13 @@ const (
 const (
 	SYSTEM_SCOPE = "nodes"
 	PROTOS_SCOPE = "protos"
+)
+
+var (
+	NODETYPE_SITE   = GetNodeTypeName(SiteNode{})
+	NODETYPE_TEXT   = GetNodeTypeName(TextNode{})
+	NODETYPE_STYLE  = GetNodeTypeName(StyleNode{})
+	NODETYPE_FOLDER = GetNodeTypeName(FolderNode{})
 )
 
 // 	acct.Path("/profile").HandlerFunc(ProfileHandler)

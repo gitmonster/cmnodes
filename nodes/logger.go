@@ -19,9 +19,9 @@ const (
 
 ////////////////////////////////////////////////////////////////////////////////
 type Logger struct {
-	Loggly *loggly.Client
-	Level  int
-	Token  string
+	Loggly  *loggly.Client
+	Level   int
+	Praefix string
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ func (l *Logger) Debugf(format string, args ...interface{}) {
 
 	msg := loggly.Message{}
 	msg["message"] = fmt.Sprintf(format, args...)
-	l.Loggly.Debug(l.Token, msg)
+	l.Loggly.Debug(l.Praefix, msg)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ func (l *Logger) Infof(format string, args ...interface{}) {
 
 	msg := loggly.Message{}
 	msg["message"] = fmt.Sprintf(format, args...)
-	l.Loggly.Info(l.Token, msg)
+	l.Loggly.Info(l.Praefix, msg)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ func (l *Logger) Warningf(format string, args ...interface{}) {
 
 	msg := loggly.Message{}
 	msg["message"] = fmt.Sprintf(format, args...)
-	l.Loggly.Warn(l.Token, msg)
+	l.Loggly.Warn(l.Praefix, msg)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ func (l *Logger) Errorf(format string, args ...interface{}) {
 
 	msg := loggly.Message{}
 	msg["message"] = fmt.Sprintf(format, args...)
-	l.Loggly.Error(l.Token, msg)
+	l.Loggly.Error(l.Praefix, msg)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ func (l *Logger) Criticalf(format string, args ...interface{}) {
 
 	msg := loggly.Message{}
 	msg["message"] = fmt.Sprintf(format, args...)
-	l.Loggly.Critical(l.Token, msg)
+	l.Loggly.Critical(l.Praefix, msg)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,8 +81,8 @@ func (l *Logger) SetLevel(level int) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) GetLogger(token string) *Logger {
-	logger := &Logger{Level: LevelDebug, Token: token}
+func (e *Engine) NewLogger(praefix string) *Logger {
+	logger := &Logger{Level: LevelDebug, Praefix: praefix}
 	applog.SetLevel(applog.LevelDebug)
 
 	if token, err := e.Config.GetLogglyTokenById("default"); err != nil {
