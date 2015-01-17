@@ -3,6 +3,8 @@ package nodes
 import (
 	"bufio"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 const (
@@ -15,8 +17,8 @@ type Node interface {
 	SetParentId(parentId string)
 	Move(parentId string) error
 	SetName(name string)
-	RegisterRoute(mux.Router) error
-	SetId(id string)
+	NewObjectId()
+	RegisterRoute(router *mux.Router)
 	Remove() error
 }
 
@@ -28,23 +30,18 @@ const (
 )
 
 const (
-    SYSTEM_SCOPE = "nodes"
+	SYSTEM_SCOPE = "nodes"
 	PROTOS_SCOPE = "protos"
 )
 
-
-
-
-
 // 	acct.Path("/profile").HandlerFunc(ProfileHandler)
-	//
-	//
-	//
-	// subRouter := e.mux.PathPrefix("/nodes").Subrouter()
-	//
-	// subRouter.HandleFunc("/test1", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "test1") })
-	// subRouter.HandleFunc("/test2", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "test2") })
-
+//
+//
+//
+// subRouter := e.mux.PathPrefix("/nodes").Subrouter()
+//
+// subRouter.HandleFunc("/test1", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "test1") })
+// subRouter.HandleFunc("/test2", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "test2") })
 
 //
 // func (e *Engine) RenderData(node Node) error {

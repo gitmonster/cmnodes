@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"github.com/gitmonster/cmnodes/render"
+	"labix.org/v2/mgo/bson"
 
 	"bufio"
 )
@@ -9,6 +10,7 @@ import (
 type NodeBase struct {
 	Id            string         `bson:"_id"`
 	Parent        string         `bson:"p"`
+	Name          string         `bson:"nm"`
 	Order         int            `bson:"o"`
 	MimeType      string         `bson:"m"`
 	TypeName      string         `bson:"tn"`
@@ -18,6 +20,21 @@ type NodeBase struct {
 	Scope         string         `bson:"sp"`
 	render        *render.Render
 	engine        *Engine
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (n *NodeBase) NewObjectId() {
+	n.Id = bson.NewObjectId().Hex()
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (n *NodeBase) SetName(name string) {
+	n.Name = name
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (n *NodeBase) SetParentId(parentId string) {
+	n.Parent = parentId
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/gitmonster/cmnodes/render"
+	"github.com/gorilla/mux"
 )
 
 type TextNode struct {
@@ -15,7 +16,10 @@ type TextNode struct {
 
 ////////////////////////////////////////////////////////////////////////////////
 func init() {
-	RegisterNodeType(new(TextNode))
+	RegisterNodeType(TextNode{}, func() Node {
+		node := Node(new(TextNode))
+		return node
+	})
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +28,7 @@ func (n *TextNode) IsChildAllowed(typeName string) bool {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *TextNode) RegisterRoute( router mux.Router) {
+func (n *TextNode) RegisterRoute(router *mux.Router) {
 	router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
 		// Assumes you have a template in ./templates called "example.tmpl"
 		// $ mkdir -p templates && echo "<h1>Hello HTML world.</h1>" > templates/example.tmpl

@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/gitmonster/cmnodes/render"
+	"github.com/gorilla/mux"
 )
 
 type SCSSStyleNode struct {
@@ -13,11 +14,14 @@ type SCSSStyleNode struct {
 
 ////////////////////////////////////////////////////////////////////////////////
 func init() {
-	RegisterNodeType(new(SCSSStyleNode))
+	RegisterNodeType(SCSSStyleNode{}, func() Node {
+		node := Node(new(SCSSStyleNode))
+		return node
+	})
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *SCSSStyleNode) RegisterRoute(router mux.Router) {
+func (n *SCSSStyleNode) RegisterRoute(router *mux.Router) {
 	router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("Content here."))
 	})

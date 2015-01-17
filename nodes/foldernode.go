@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/gitmonster/cmnodes/render"
+	"github.com/gorilla/mux"
 )
 
 type FolderNode struct {
@@ -13,7 +14,10 @@ type FolderNode struct {
 
 ////////////////////////////////////////////////////////////////////////////////
 func init() {
-	RegisterNodeType(new(FolderNode))
+	RegisterNodeType(FolderNode{}, func() Node {
+		node := Node(new(FolderNode))
+		return node
+	})
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +26,7 @@ func (n *FolderNode) IsChildAllowed(typeName string) bool {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *FolderNode) RegisterRoute(router mux.Router) {
+func (n *FolderNode) RegisterRoute(router *mux.Router) {
 	router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("This is a folder."))
 	})

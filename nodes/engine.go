@@ -2,7 +2,6 @@ package nodes
 
 import (
 	"fmt"
-	"net/http"
 	"reflect"
 	"time"
 
@@ -25,21 +24,22 @@ type Engine struct {
 }
 
 var (
-	TypeMap map[string]reflect.Type
+	TypeMap map[string]NewNodeFunc
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 func init() {
-	TypeMap = make(map[string]reflect.Type)
-}
-
-////////////////////////////////////////////////////////////////////////////////
-func RegisterNodeType(node interface{}) {
-	t := reflect.TypeOf(node)
-	TypeMap[t.Name()] = t
+	TypeMap = make(map[string]NewNodeFunc)
 }
 
 type EnumFunc func(node Node) error
+type NewNodeFunc func() Node
+
+////////////////////////////////////////////////////////////////////////////////
+func RegisterNodeType(node interface{}, fn NewNodeFunc) {
+	t := reflect.TypeOf(node)
+	TypeMap[t.Name()] = fn
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) EnumerateChilds(scope, nodeId string, fn EnumFunc) error {
@@ -111,7 +111,6 @@ func (e *Engine) NodeExists(scope, nodeId string) (bool, error) {
 	return false, nil
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) CheckIsChildAllowed(scope, parentId, nodeType string) (bool, error) {
 	session, coll := e.GetMgoSession(scope)
@@ -119,14 +118,14 @@ func (e *Engine) CheckIsChildAllowed(scope, parentId, nodeType string) (bool, er
 
 	query := coll.FindId(parentId)
 
-    node := interface{}
-	if , err := query.One(&node); err != nil {
+	var node interface{}
+	if err := query.One(&node); err != nil {
 		return false, err
-	} else
-	    if n, ok := node.(Node); !ok {
-			return fmt.Errorf("CheckIsChildAllowed::Could not assert child to Node type")
+	} else {
+		if n, ok := node.(Node); !ok {
+			return false, fmt.Errorf("CheckIsChildAllowed::Could not assert child to Node type")
 		} else {
-			return n.IsChildAllowed(nodeType)
+			return n.IsChildAllowed(nodeType), nil
 		}
 	}
 
@@ -158,11 +157,11 @@ func (e *Engine) MoveNode(scope, srcNodeType, srcNodeId, targetNodeId string) er
 		return fmt.Errorf("MoveNode::Source node %s is already a child of Target node %s.", srcNodeId, targetNodeId)
 	}
 
-    if ok, err := e.CheckIsChildAllowed(scope, targetNodeId, srcNodeType); err != nil {
-        return err
-    }else if !ok{
+	if ok, err := e.CheckIsChildAllowed(scope, targetNodeId, srcNodeType); err != nil {
+		return err
+	} else if !ok {
 		return fmt.Errorf("MoveNode::Source node %s is not allowed as child of Target node %s.", srcNodeId, targetNodeId)
-    }
+	}
 
 	set := bson.M{"$set": bson.M{
 		"p": targetNodeId, //set parent to targetNodeId
@@ -189,7 +188,7 @@ func (e *Engine) RemoveNode(scope, nodeId string) error {
 
 	node := NodeBase{}
 	for iter.Next(&node) {
-		e.RemoveNode(node.Id)
+		e.RemoveNode(scope, node.Id)
 	}
 
 	if err := iter.Close(); err != nil {
@@ -204,47 +203,41 @@ func (e *Engine) RemoveNode(scope, nodeId string) error {
 	return nil
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) CreateInstanceByType(nodeType string) (Node, error) {
-    if t, ok := TypeMap[nodeType]; !ok {
+	if fn, ok := TypeMap[nodeType]; !ok {
 		return nil, fmt.Errorf("CreateInstanceByType::Type %s is not registered yet.", nodeType)
 	} else {
-		n := reflect.New(t).Elem().Interface()
-		node, ok := n.(Node)
 
-		if !ok {
-			return nil, fmt.Errorf("CreateInstanceByType::Unable to create Node for nodetype %s.", nodeType)
-		}
+		session, coll := e.GetMgoSession(PROTOS_SCOPE)
+		defer session.Close()
 
-		protoSession, protoColl := e.GetMgoSession(PROTOS_SCOPE)
-		defer protoSession.Close()
-
-		query := protoColl.Find(bson.M{"tn": nodeType})
+		query := coll.Find(bson.M{"tn": nodeType})
 		if cnt, err := query.Count(); err != nil {
 			return nil, err
 		} else if cnt == 0 {
 			return nil, fmt.Errorf("CreateInstanceByType::Prototype for NodeType %s is not available", nodeType)
 		}
 
+		node := fn()
 		if err := query.One(&node); err != nil {
 			return nil, err
 		}
 
-		node.SetId(bson.NewObjectId().Hex())
+		node.NewObjectId()
 		return node, nil
-    }
+	}
 
-    return nil, nil
+	return nil, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) CreateNewNode(scope, parentId, name, nodeType string) (Node, error) {
-	if node, err := e.CreateInstanceByType(nodeType); err != nil{
-        return err
-	}else{
-    	node.SetParentId(parentId)
-	    node.SetName(name)
+	if node, err := e.CreateInstanceByType(nodeType); err != nil {
+		return nil, err
+	} else {
+		node.SetParentId(parentId)
+		node.SetName(name)
 
 		session, coll := e.GetMgoSession(scope)
 		defer session.Close()
@@ -258,7 +251,7 @@ func (e *Engine) CreateNewNode(scope, parentId, name, nodeType string) (Node, er
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) RegisterAllRoutes(scope string, router mux.Router) error {
+func (e *Engine) RegisterAllRoutes(scope string, router *mux.Router) error {
 	session, coll := e.GetMgoSession(scope)
 	defer session.Close()
 
@@ -291,18 +284,18 @@ func (e *Engine) AssembleRouteFor(scope, nodeId string) string {
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) Startup(connection string) error {
 
-	mainRouter = mux.NewRouter().StrictSlash(false)
-	systemRouter:= mux.NewRouter()
+	mainRouter := mux.NewRouter().StrictSlash(false)
+	systemRouter := mux.NewRouter()
 
 	mainRouter.PathPrefix("/nodes").Handler(negroni.New(
 		negroni.NewRecovery(),
 		//negroni.HandlerFunc(MyMiddleware),
 		negroni.NewLogger(),
 		negroni.Wrap(systemRouter),
-		))
+	))
 
 	sysRouter := systemRouter.PathPrefix("/nodes").Subrouter()
-	if err := e.RegisterAllRoutes(SYSTEM_SCOPE,sysRouter); err != nil {
+	if err := e.RegisterAllRoutes(SYSTEM_SCOPE, sysRouter); err != nil {
 		return err
 	}
 
