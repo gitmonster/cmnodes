@@ -272,6 +272,11 @@ func (e *Engine) AssembleRouteFor(scope, nodeId string) string {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+func (e *Engine) Serve() error {
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) Startup(connection string) error {
 
 	mainRouter := mux.NewRouter().StrictSlash(false)

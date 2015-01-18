@@ -38,6 +38,7 @@ func NewCommander(app *cli.App, cnf *nodes.NodesConfig) (*Commander, error) {
 		cmd.engine = engine
 	}
 
+    cmd.NewServeCommand()
 	cmd.NewInitProtosCommand()
 	return cmd, nil
 }
