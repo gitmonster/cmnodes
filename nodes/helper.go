@@ -28,7 +28,7 @@ func (p MongoSessionProvider) GetMgoSession(collName string) (*mgo.Session, *mgo
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func GetNodeTypeName(node interface{}) string {
+func GetTypeName(node interface{}) string {
 	t := reflect.TypeOf(node)
 	return strings.ToLower(t.Name())
 }

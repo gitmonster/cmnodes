@@ -37,10 +37,13 @@ const (
 )
 
 var (
-	NODETYPE_SITE   = GetNodeTypeName(SiteNode{})
-	NODETYPE_TEXT   = GetNodeTypeName(TextNode{})
-	NODETYPE_STYLE  = GetNodeTypeName(StyleNode{})
-	NODETYPE_FOLDER = GetNodeTypeName(FolderNode{})
+	NODETYPE_SITE   = GetTypeName(SiteNode{})
+	NODETYPE_TEXT   = GetTypeName(TextNode{})
+	NODETYPE_STYLE  = GetTypeName(StyleNode{})
+	NODETYPE_FOLDER = GetTypeName(FolderNode{})
+)
+var (
+	CRITERIA_SYSTEM_SITE = NewCriteria(SYSTEM_SCOPE).WithName("System").WithNodeType(NODETYPE_SITE)
 )
 
 // 	acct.Path("/profile").HandlerFunc(ProfileHandler)

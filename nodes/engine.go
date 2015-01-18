@@ -41,7 +41,7 @@ type NewNodeFunc func(engine *Engine) Node
 
 ////////////////////////////////////////////////////////////////////////////////
 func RegisterNodeType(node interface{}, fn NewNodeFunc) {
-	TypeMap[GetNodeTypeName(node)] = fn
+	TypeMap[GetTypeName(node)] = fn
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -375,14 +375,39 @@ func (e *Engine) EnsureSystem() error {
 		return err
 	}
 
-	_, err := e.CreateNewNode(SYSTEM_SCOPE, EMPTY_STRING,
-		"System", NODETYPE_SITE)
-
+	ex, err := e.NodeExists(CRITERIA_SYSTEM_SITE)
 	if err != nil {
 		return err
 	}
 
+	if !ex {
+		siteNode, err := e.CreateNewNode(CRITERIA_SYSTEM_SITE)
+		if err != nil {
+			return err
+		}
+		elemNode, err := e.CreateNewNode(SYSTEM_SCOPE, siteNode.GetParentId(), "Prototypes", NODETYPE_FOLDER)
+		if err != nil {
+			return err
+		}
+
+	}
+
 	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (e *Engine) NodeExists(crit *Criteria) (bool, error) {
+	session, coll := e.GetMgoSession(crit.Scope)
+	defer session.Close()
+
+	query := coll.FindId(crit.GetSelector())
+	if cnt, err := query.Count(); err != nil {
+		return false, err
+	} else if cnt > 0 {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////

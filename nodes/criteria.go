@@ -1,0 +1,56 @@
+package nodes
+
+import (
+	"github.com/fatih/structs"
+	"labix.org/v2/mgo/bson"
+)
+
+type Criteria struct {
+	Scope    string `-`
+	Id       string `_id`
+	ParentId string `p`
+	Name     string `nm`
+	TypeName string `tn`
+	Order    int    `o`
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) WithId(id string) *Criteria {
+	c.Id = id
+	return c
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) WithName(name string) *Criteria {
+	c.Name = name
+	return c
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) WithParentId(parentId string) *Criteria {
+	c.ParentId = parentId
+	return c
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) WithOrder(order int) *Criteria {
+	c.Order = order
+	return c
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) WithNodeType(nodeType string) *Criteria {
+	c.TypeName = nodeType
+	return c
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) GetSelector() bson.M {
+	m := structs.Map(*c)
+	return bson.M(m)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func NewCriteria(scope string) *Criteria {
+	return &Criteria{Scope: scope}
+}
