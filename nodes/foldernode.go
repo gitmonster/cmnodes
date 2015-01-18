@@ -34,6 +34,7 @@ func (n *FolderNode) RegisterRoute(router *mux.Router) {
 func NewFolderNode(engine *Engine) *FolderNode {
 	node := FolderNode{}
 	node.Init(node, engine)
+	node.Name = "FolderNode"
 	node.MimeType = "text/html"
 	return &node
 }

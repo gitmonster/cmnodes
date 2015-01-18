@@ -92,5 +92,7 @@ func (c *Criteria) GetSelector() bson.M {
 
 ////////////////////////////////////////////////////////////////////////////////
 func NewCriteria(scope string) *Criteria {
-	return &Criteria{scope: scope}
+	cr := Criteria{scope: scope}
+	cr.theMap = bson.M{}
+	return &cr
 }

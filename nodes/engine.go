@@ -117,8 +117,6 @@ func (e *Engine) CheckIsChildAllowed(scope, parentId, nodeType string) (bool, er
 			return n.IsChildAllowed(nodeType), nil
 		}
 	}
-
-	return false, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,39 +193,44 @@ func (e *Engine) RemoveNode(scope, nodeId string) error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) CreateInstanceByType(nodeType string) (Node, error) {
+func (e *Engine) CreateInstanceByType(nodeType string, abortNoPrototype bool) (Node, error) {
 	if fn, ok := TypeMap[nodeType]; !ok {
 		return nil, fmt.Errorf("CreateInstanceByType::Type %s is not registered yet.", nodeType)
 	} else {
-
-		session, coll := e.GetMgoSession(PROTOS_SCOPE)
+		session, coll := e.GetMgoSession(SYSTEM_SCOPE)
 		defer session.Close()
 
-		query := coll.FindId(nodeType)
-		if cnt, err := query.Count(); err != nil {
-			return nil, err
-		} else if cnt == 0 {
-			return nil, fmt.Errorf("CreateInstanceByType::Prototype for NodeType %s is not available", nodeType)
-		}
+		crit := NewCriteria(SYSTEM_SCOPE).
+			WithParentId(OBJECTID_SYSTEM_PROTOTYPES).
+			WithNodeType(nodeType)
 
-		node := fn(e)
-		if err := query.One(node); err != nil {
+		if ex, err := e.NodeExists(crit); err != nil {
 			return nil, err
-		}
+		} else if abortNoPrototype && !ex {
+			return nil, fmt.Errorf("CreateInstanceByType::Prototype for NodeType %s is not available, aborting", nodeType)
+		} else {
+			node := fn(e)
+			if ex {
+				if err := coll.Find(crit.GetSelector()).One(node); err != nil {
+					return nil, err
+				}
+			}
 
-		node.NewObjectId()
-		return node, nil
+			node.NewObjectId()
+			return node, nil
+		}
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-func (e *Engine) CreateNode(crit *Criteria) (Node, error) {
-	if node, err := e.CreateInstanceByType(crit.NodeType()); err != nil {
+func (e *Engine) CreateNode(crit *Criteria, abortNoPrototype bool) (Node, error) {
+	if node, err := e.CreateInstanceByType(crit.NodeType(), abortNoPrototype); err != nil {
 		return nil, err
 	} else {
+		node.SetObjectId(crit.Id())
 		node.SetParentId(crit.ParentId())
 		node.SetName(crit.Name())
+		node.SetOrder(crit.Order())
 
 		session, coll := e.GetMgoSession(crit.Scope())
 		defer session.Close()
@@ -273,6 +276,15 @@ func (e *Engine) AssembleRouteFor(scope, nodeId string) string {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) Serve() error {
+	if cc, err := e.Config.GetConnectionConfig(); err != nil {
+		return err
+	} else {
+		connection := cc["connection"].(string)
+		if err := e.Startup(connection); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -323,24 +335,26 @@ func (e *Engine) LoadProtoContent(typeName, section string) (string, error) {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) ImportPrototypes(force bool) error {
-	e.Logger.Infof("Import prototypes")
-
 	session, coll := e.GetMgoSession(SYSTEM_SCOPE)
 	defer session.Close()
 
 	if force {
+		e.Logger.Infof("Import prototypes | buid new")
 		coll.RemoveAll(nil)
 	}
 
+	crit := NewCriteria(SYSTEM_SCOPE).
+		WithParentId(OBJECTID_SYSTEM_PROTOTYPES)
+
 	for tp, fn := range TypeMap {
-		query := coll.FindId(tp)
-		if cnt, err := query.Count(); err != nil {
+		crit.WithNodeType(tp)
+		if ex, err := e.NodeExists(crit); err != nil {
 			return err
-		} else if cnt == 0 {
-			e.Logger.Infof("Import prototype for %s", tp)
+		} else if !ex {
+			e.Logger.Infof("Import new prototype for %s", tp)
 
 			node := fn(e)
-			node.SetObjectId(tp)
+			node.NewObjectId()
 			node.SetParentId(OBJECTID_SYSTEM_PROTOTYPES)
 
 			if cont, err := e.LoadProtoContent(tp, "edit"); err != nil {
@@ -365,34 +379,39 @@ func (e *Engine) EnsurePrototypes() error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) EnsureSystem() error {
+func (e *Engine) EnsureNodeExists(crit *Criteria, abortNoPrototype bool) error {
+	if ex, err := e.NodeExists(crit); err != nil {
+		return err
+	} else if !ex {
+		if _, err := e.CreateNode(crit, abortNoPrototype); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (e *Engine) CheckSystemIntegrity() error {
 	e.Logger.Infof("Check system integrity...")
-	if err := e.EnsurePrototypes(); err != nil {
+
+	if err := e.EnsureNodeExists(CRITERIA_SYSTEM_SITE, false); err != nil {
 		return err
 	}
 
-	if ex, err := e.NodeExists(CRITERIA_SYSTEM_SITE); err != nil {
+	if err := e.EnsureNodeExists(CRITERIA_SYSTEM_CONTENT, false); err != nil {
 		return err
-	} else if !ex {
-		if _, err := e.CreateNode(CRITERIA_SYSTEM_SITE); err != nil {
-			return err
-		}
 	}
 
-	if ex, err := e.NodeExists(CRITERIA_SYSTEM_TEMPLATES); err != nil {
+	if err := e.EnsureNodeExists(CRITERIA_SYSTEM_TEMPLATES, false); err != nil {
 		return err
-	} else if !ex {
-		if _, err := e.CreateNode(CRITERIA_SYSTEM_TEMPLATES); err != nil {
-			return err
-		}
 	}
 
-	if ex, err := e.NodeExists(CRITERIA_SYSTEM_PROTOTYPES); err != nil {
+	if err := e.EnsureNodeExists(CRITERIA_SYSTEM_PROTOTYPES, false); err != nil {
 		return err
-	} else if !ex {
-		if _, err := e.CreateNode(CRITERIA_SYSTEM_PROTOTYPES); err != nil {
-			return err
-		}
+	}
+	if err := e.ImportPrototypes(false); err != nil {
+		return err
 	}
 
 	return nil
@@ -455,6 +474,8 @@ func NewEngine(config *NodesConfig) (*Engine, error) {
 		}
 	}
 
-	eng.EnsureSystem()
+	if err := eng.CheckSystemIntegrity(); err != nil {
+		return nil, err
+	}
 	return &eng, nil
 }

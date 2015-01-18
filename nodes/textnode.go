@@ -38,6 +38,7 @@ func (n *TextNode) RegisterRoute(router *mux.Router) {
 func NewTextNode(engine *Engine) *TextNode {
 	node := TextNode{}
 	node.Init(node, engine)
+	node.Name = "TextNode"
 	node.MimeType = "text/html"
 	node.IsTemplate = false
 

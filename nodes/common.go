@@ -18,6 +18,7 @@ type Node interface {
 	GetParentId() string
 	Move(parentId string) error
 	SetName(name string)
+	SetOrder(order int)
 	SetEditTemplate(content string)
 	SetObjectId(objectId string)
 	NewObjectId()
@@ -37,9 +38,10 @@ const (
 )
 
 const (
-	OBJECTID_SYSTEM_SITE       = "58ab8576fge45de"
-	OBJECTID_SYSTEM_PROTOTYPES = "58fde576fe45098"
-	OBJECTID_SYSTEM_TEMPLATES  = "578d45edfe45823"
+	OBJECTID_SYSTEM_SITE       = "54bc1c73618ccf2345600005"
+	OBJECTID_SYSTEM_PROTOTYPES = "54bc1c3456cdf458cc000453"
+	OBJECTID_SYSTEM_TEMPLATES  = "54bc1c73618cc458cc0567f5"
+	OBJECTID_SYSTEM_CONTENT    = "54bc1c73618cfc345c00fc34"
 )
 
 var (
@@ -49,9 +51,10 @@ var (
 	NODETYPE_FOLDER = GetTypeName(FolderNode{})
 )
 var (
-	CRITERIA_SYSTEM_SITE       = NewCriteria(SYSTEM_SCOPE).WithName("System").WithNodeType(NODETYPE_SITE).WithId(OBJECTID_SYSTEM_SITE)
-	CRITERIA_SYSTEM_TEMPLATES  = NewCriteria(SYSTEM_SCOPE).WithId(OBJECTID_SYSTEM_TEMPLATES).WithName("Templates").WithNodeType(NODETYPE_FOLDER).WithParentId(OBJECTID_SYSTEM_SITE)
-	CRITERIA_SYSTEM_PROTOTYPES = NewCriteria(SYSTEM_SCOPE).WithId(OBJECTID_SYSTEM_PROTOTYPES).WithName("Prototypes").WithNodeType(NODETYPE_FOLDER).WithParentId(OBJECTID_SYSTEM_SITE)
+	CRITERIA_SYSTEM_SITE       = NewCriteria(SYSTEM_SCOPE).WithName("System").WithNodeType(NODETYPE_SITE).WithId(OBJECTID_SYSTEM_SITE).WithParentId(EMPTY_STRING).WithOrder(99)
+	CRITERIA_SYSTEM_CONTENT    = NewCriteria(SYSTEM_SCOPE).WithId(OBJECTID_SYSTEM_CONTENT).WithName("Content").WithNodeType(NODETYPE_FOLDER).WithParentId(OBJECTID_SYSTEM_SITE).WithOrder(0)
+	CRITERIA_SYSTEM_TEMPLATES  = NewCriteria(SYSTEM_SCOPE).WithId(OBJECTID_SYSTEM_TEMPLATES).WithName("Templates").WithNodeType(NODETYPE_FOLDER).WithParentId(OBJECTID_SYSTEM_SITE).WithOrder(1)
+	CRITERIA_SYSTEM_PROTOTYPES = NewCriteria(SYSTEM_SCOPE).WithId(OBJECTID_SYSTEM_PROTOTYPES).WithName("Prototypes").WithNodeType(NODETYPE_FOLDER).WithParentId(OBJECTID_SYSTEM_SITE).WithOrder(2)
 )
 
 // 	acct.Path("/profile").HandlerFunc(ProfileHandler)

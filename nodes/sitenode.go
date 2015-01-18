@@ -6,7 +6,9 @@ import (
 )
 
 type SiteNode struct {
-	NodeBase `bson:",inline"`
+	NodeBase    `bson:",inline"`
+	Domain      string `bson:"dm"`
+	EntryNodeId string `bson:"etr"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,5 +35,6 @@ func (n *SiteNode) IsChildAllowed(typeName string) bool {
 func NewSiteNode(engine *Engine) *SiteNode {
 	node := SiteNode{}
 	node.Init(node, engine)
+	node.Name = "SiteNode"
 	return &node
 }
