@@ -15,6 +15,7 @@ type Node interface {
 	RenderEditContent(w *bufio.Writer) error
 	IsChildAllowed(typeName string) bool
 	SetParentId(parentId string)
+	GetParentId() string
 	Move(parentId string) error
 	SetName(name string)
 	SetEditTemplate(content string)
@@ -33,7 +34,12 @@ const (
 
 const (
 	SYSTEM_SCOPE = "nodes"
-	PROTOS_SCOPE = "protos"
+)
+
+const (
+	OBJECTID_SYSTEM_SITE       = "58ab8576fge45de"
+	OBJECTID_SYSTEM_PROTOTYPES = "58fde576fe45098"
+	OBJECTID_SYSTEM_TEMPLATES  = "578d45edfe45823"
 )
 
 var (
@@ -43,7 +49,9 @@ var (
 	NODETYPE_FOLDER = GetTypeName(FolderNode{})
 )
 var (
-	CRITERIA_SYSTEM_SITE = NewCriteria(SYSTEM_SCOPE).WithName("System").WithNodeType(NODETYPE_SITE)
+	CRITERIA_SYSTEM_SITE       = NewCriteria(SYSTEM_SCOPE).WithName("System").WithNodeType(NODETYPE_SITE).WithId(OBJECTID_SYSTEM_SITE)
+	CRITERIA_SYSTEM_TEMPLATES  = NewCriteria(SYSTEM_SCOPE).WithId(OBJECTID_SYSTEM_TEMPLATES).WithName("Templates").WithNodeType(NODETYPE_FOLDER).WithParentId(OBJECTID_SYSTEM_SITE)
+	CRITERIA_SYSTEM_PROTOTYPES = NewCriteria(SYSTEM_SCOPE).WithId(OBJECTID_SYSTEM_PROTOTYPES).WithName("Prototypes").WithNodeType(NODETYPE_FOLDER).WithParentId(OBJECTID_SYSTEM_SITE)
 )
 
 // 	acct.Path("/profile").HandlerFunc(ProfileHandler)

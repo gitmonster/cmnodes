@@ -101,20 +101,6 @@ func (e *Engine) CheckNodeIsNoChild(scope, nodeId string, parentNodeId string) (
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) NodeExists(scope, nodeId string) (bool, error) {
-	session, coll := e.GetMgoSession(scope)
-	defer session.Close()
-
-	if cnt, err := coll.FindId(nodeId).Count(); err != nil {
-		return false, err
-	} else if cnt == 1 {
-		return true, nil
-	}
-
-	return false, nil
-}
-
-////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) CheckIsChildAllowed(scope, parentId, nodeType string) (bool, error) {
 	session, coll := e.GetMgoSession(scope)
 	defer session.Close()
@@ -141,14 +127,16 @@ func (e *Engine) MoveNode(scope, srcNodeType, srcNodeId, targetNodeId string) er
 	defer session.Close()
 
 	// check if source node exists
-	if ex, err := e.NodeExists(scope, srcNodeId); err != nil {
+
+	crit := NewCriteria(scope).WithId(srcNodeId)
+	if ex, err := e.NodeExists(crit); err != nil {
 		return err
 	} else if !ex {
 		return fmt.Errorf("MoveNode::Source node %s doesn't exist.", targetNodeId)
 	}
-
+	crit.WithId(targetNodeId)
 	// check if target node exists
-	if ex, err := e.NodeExists(scope, targetNodeId); err != nil {
+	if ex, err := e.NodeExists(crit); err != nil {
 		return err
 	} else if !ex {
 		return fmt.Errorf("MoveNode::Target node %s doesn't exist.", targetNodeId)
@@ -233,14 +221,15 @@ func (e *Engine) CreateInstanceByType(nodeType string) (Node, error) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) CreateNewNode(scope, parentId, name, nodeType string) (Node, error) {
-	if node, err := e.CreateInstanceByType(nodeType); err != nil {
+
+func (e *Engine) CreateNode(crit *Criteria) (Node, error) {
+	if node, err := e.CreateInstanceByType(crit.NodeType()); err != nil {
 		return nil, err
 	} else {
-		node.SetParentId(parentId)
-		node.SetName(name)
+		node.SetParentId(crit.ParentId())
+		node.SetName(crit.Name())
 
-		session, coll := e.GetMgoSession(scope)
+		session, coll := e.GetMgoSession(crit.Scope())
 		defer session.Close()
 
 		if err := coll.Insert(node); err != nil {
@@ -331,7 +320,7 @@ func (e *Engine) LoadProtoContent(typeName, section string) (string, error) {
 func (e *Engine) ImportPrototypes(force bool) error {
 	e.Logger.Infof("Import prototypes")
 
-	session, coll := e.GetMgoSession(PROTOS_SCOPE)
+	session, coll := e.GetMgoSession(SYSTEM_SCOPE)
 	defer session.Close()
 
 	if force {
@@ -347,6 +336,7 @@ func (e *Engine) ImportPrototypes(force bool) error {
 
 			node := fn(e)
 			node.SetObjectId(tp)
+			node.SetParentId(OBJECTID_SYSTEM_PROTOTYPES)
 
 			if cont, err := e.LoadProtoContent(tp, "edit"); err != nil {
 				return err
@@ -371,25 +361,33 @@ func (e *Engine) EnsurePrototypes() error {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) EnsureSystem() error {
+	e.Logger.Infof("Check system integrity...")
 	if err := e.EnsurePrototypes(); err != nil {
 		return err
 	}
 
-	ex, err := e.NodeExists(CRITERIA_SYSTEM_SITE)
-	if err != nil {
+	if ex, err := e.NodeExists(CRITERIA_SYSTEM_SITE); err != nil {
 		return err
+	} else if !ex {
+		if _, err := e.CreateNode(CRITERIA_SYSTEM_SITE); err != nil {
+			return err
+		}
 	}
 
-	if !ex {
-		siteNode, err := e.CreateNewNode(CRITERIA_SYSTEM_SITE)
-		if err != nil {
+	if ex, err := e.NodeExists(CRITERIA_SYSTEM_TEMPLATES); err != nil {
+		return err
+	} else if !ex {
+		if _, err := e.CreateNode(CRITERIA_SYSTEM_TEMPLATES); err != nil {
 			return err
 		}
-		elemNode, err := e.CreateNewNode(SYSTEM_SCOPE, siteNode.GetParentId(), "Prototypes", NODETYPE_FOLDER)
-		if err != nil {
-			return err
-		}
+	}
 
+	if ex, err := e.NodeExists(CRITERIA_SYSTEM_PROTOTYPES); err != nil {
+		return err
+	} else if !ex {
+		if _, err := e.CreateNode(CRITERIA_SYSTEM_PROTOTYPES); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -397,7 +395,7 @@ func (e *Engine) EnsureSystem() error {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) NodeExists(crit *Criteria) (bool, error) {
-	session, coll := e.GetMgoSession(crit.Scope)
+	session, coll := e.GetMgoSession(crit.Scope())
 	defer session.Close()
 
 	query := coll.FindId(crit.GetSelector())
