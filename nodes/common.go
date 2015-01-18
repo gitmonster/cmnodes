@@ -11,6 +11,19 @@ const (
 	EMPTY_STRING = ""
 )
 
+type BaseData struct {
+	Id            string         `bson:"_id" toml:"Id"`
+	ParentId      string         `bson:"p" toml:"ParentId"`
+	Name          string         `bson:"nm" toml:"Name"`
+	Order         int            `bson:"o" toml:"Order"`
+	MimeType      string         `bson:"m" toml:"MimeType"`
+	TypeName      string         `bson:"tn" toml:"TypeName"`
+	Route         string         `bson:"rt" toml:"Route"`
+	RegisterRoute bool           `bson:"rr" toml:"RegisterRoute"`
+	EditRep       Representation `bson:"er" toml:"-"`
+	Scope         string         `bson:"sp" toml:"Scope"`
+}
+
 type Node interface {
 	RenderEditContent(w *bufio.Writer) error
 	IsChildAllowed(typeName string) bool

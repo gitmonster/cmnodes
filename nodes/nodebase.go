@@ -8,19 +8,10 @@ import (
 )
 
 type NodeBase struct {
-	Id            string         `bson:"_id"`
-	Parent        string         `bson:"p"`
-	Name          string         `bson:"nm"`
-	Order         int            `bson:"o"`
-	MimeType      string         `bson:"m"`
-	TypeName      string         `bson:"tn"`
-	Route         string         `bson:"rt"`
-	RegisterRoute bool           `bson:"rr"`
-	EditRep       Representation `bson:"er"`
-	Scope         string         `bson:"sp"`
-	Render        *render.Render `bson:"-"`
-	Engine        *Engine        `bson:"-"`
-	Loggable      `bson:"-"`
+	BaseData `bson:",inline"`
+	Render   *render.Render `bson:"-" toml:"-"`
+	Engine   *Engine        `bson:"-" toml:"-"`
+	Loggable `bson:"-" toml:"-"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,12 +49,12 @@ func (n *NodeBase) SetName(name string) {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) SetParentId(parentId string) {
-	n.Parent = parentId
+	n.ParentId = parentId
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) GetParentId() string {
-	return n.Parent
+	return n.ParentId
 }
 
 ////////////////////////////////////////////////////////////////////////////////

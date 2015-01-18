@@ -224,15 +224,15 @@ func (e *Engine) CreateInstanceByType(nodeType string, abortNoPrototype bool) (N
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) CreateNode(crit *Criteria, abortNoPrototype bool) (Node, error) {
-	if node, err := e.CreateInstanceByType(crit.NodeType(), abortNoPrototype); err != nil {
+	if node, err := e.CreateInstanceByType(crit.GetNodeType(), abortNoPrototype); err != nil {
 		return nil, err
 	} else {
-		node.SetObjectId(crit.Id())
-		node.SetParentId(crit.ParentId())
-		node.SetName(crit.Name())
-		node.SetOrder(crit.Order())
+		node.SetObjectId(crit.GetId())
+		node.SetParentId(crit.GetParentId())
+		node.SetName(crit.GetName())
+		node.SetOrder(crit.GetOrder())
 
-		session, coll := e.GetMgoSession(crit.Scope())
+		session, coll := e.GetMgoSession(crit.GetScope())
 		defer session.Close()
 
 		if err := coll.Insert(node); err != nil {
@@ -419,7 +419,7 @@ func (e *Engine) CheckSystemIntegrity() error {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) NodeExists(crit *Criteria) (bool, error) {
-	session, coll := e.GetMgoSession(crit.Scope())
+	session, coll := e.GetMgoSession(crit.GetScope())
 	defer session.Close()
 
 	query := coll.FindId(crit.GetSelector())

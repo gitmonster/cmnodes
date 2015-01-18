@@ -3,26 +3,27 @@ package nodes
 import "labix.org/v2/mgo/bson"
 
 type Criteria struct {
-	theMap bson.M
-	scope  string
+	BaseData `bson:",inline"`
+	theMap   bson.M `toml:"-"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) Scope() string {
-	if c.scope != EMPTY_STRING {
-		return c.scope
+func (c *Criteria) GetScope() string {
+	if c.Scope != EMPTY_STRING {
+		return c.Scope
 	}
 	panic("Criteria:: Scope is not yet defined!")
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithId(id string) *Criteria {
+	c.Id = id
 	c.theMap["_id"] = id
 	return c
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) Id() string {
+func (c *Criteria) GetId() string {
 	if ob, ok := c.theMap["_id"]; ok {
 		return ob.(string)
 	}
@@ -31,12 +32,13 @@ func (c *Criteria) Id() string {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithName(name string) *Criteria {
+	c.Name = name
 	c.theMap["nm"] = name
 	return c
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) Name() string {
+func (c *Criteria) GetName() string {
 	if ob, ok := c.theMap["nm"]; ok {
 		return ob.(string)
 	}
@@ -45,12 +47,13 @@ func (c *Criteria) Name() string {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithParentId(parentId string) *Criteria {
+	c.ParentId = parentId
 	c.theMap["p"] = parentId
 	return c
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) ParentId() string {
+func (c *Criteria) GetParentId() string {
 	if ob, ok := c.theMap["p"]; ok {
 		return ob.(string)
 	}
@@ -59,12 +62,13 @@ func (c *Criteria) ParentId() string {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithOrder(order int) *Criteria {
+	c.Order = order
 	c.theMap["o"] = order
 	return c
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) Order() int {
+func (c *Criteria) GetOrder() int {
 	if ob, ok := c.theMap["o"]; ok {
 		return ob.(int)
 	}
@@ -73,12 +77,13 @@ func (c *Criteria) Order() int {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithNodeType(nodeType string) *Criteria {
+	c.TypeName = nodeType
 	c.theMap["tn"] = nodeType
 	return c
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) NodeType() string {
+func (c *Criteria) GetNodeType() string {
 	if ob, ok := c.theMap["tn"]; ok {
 		return ob.(string)
 	}
@@ -92,7 +97,8 @@ func (c *Criteria) GetSelector() bson.M {
 
 ////////////////////////////////////////////////////////////////////////////////
 func NewCriteria(scope string) *Criteria {
-	cr := Criteria{scope: scope}
+	cr := Criteria{}
+	cr.Scope = scope
 	cr.theMap = bson.M{}
 	return &cr
 }
