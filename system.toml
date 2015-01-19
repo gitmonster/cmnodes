@@ -1,0 +1,18 @@
+
+Scope = "SystemLulu"
+
+
+[[Criteria]]
+Id = "54bc1c73618ccf2345600005"
+Name= "System"
+ParentId = ""
+NodeType = "sitenode"
+Order = 99
+
+
+[[Criteria]]
+Id = "54bc1c73618ccf2345600005"
+Name = "System"
+ParentId = ""
+NodeType = "sitenode"
+Order = 99

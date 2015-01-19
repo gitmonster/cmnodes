@@ -314,7 +314,6 @@ func (e *Engine) Startup(connection string) error {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) LoadProtoContent(typeName, section string) (string, error) {
-
 	name := fmt.Sprintf("%s.%s", typeName, section)
 	pt := path.Join(e.StartupDir, "scopes", "protos", name)
 
@@ -474,8 +473,8 @@ func NewEngine(config *NodesConfig) (*Engine, error) {
 		}
 	}
 
-	if err := eng.CheckSystemIntegrity(); err != nil {
-		return nil, err
-	}
+	//if err := eng.CheckSystemIntegrity(); err != nil {
+	//	return nil, err
+	//}
 	return &eng, nil
 }

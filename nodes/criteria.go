@@ -3,7 +3,7 @@ package nodes
 import "labix.org/v2/mgo/bson"
 
 type Criteria struct {
-	BaseData `bson:",inline"`
+	BaseData `toml:"-"`
 	theMap   bson.M `toml:"-"`
 }
 
