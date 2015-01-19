@@ -22,9 +22,10 @@ type EngineFunc func(engine *Engine) error
 type Engine struct {
 	Loggable
 	MongoSessionProvider
-	negroni    *negroni.Negroni
-	Config     *NodesConfig
-	StartupDir string
+	negroni           *negroni.Negroni
+	Config            *NodesConfig
+	CriteriaSetSystem *CriteriaSet
+	StartupDir        string
 }
 
 var (
@@ -394,22 +395,12 @@ func (e *Engine) EnsureNodeExists(crit *Criteria, abortNoPrototype bool) error {
 func (e *Engine) CheckSystemIntegrity() error {
 	e.Logger.Infof("Check system integrity...")
 
-	if err := e.EnsureNodeExists(CRITERIA_SYSTEM_SITE, false); err != nil {
+	set := e.CriteriaSetSystem
+	if err := set.LoadFromFile(path.Join(e.StartupDir, "system.toml")); err != nil {
 		return err
 	}
 
-	if err := e.EnsureNodeExists(CRITERIA_SYSTEM_CONTENT, false); err != nil {
-		return err
-	}
-
-	if err := e.EnsureNodeExists(CRITERIA_SYSTEM_TEMPLATES, false); err != nil {
-		return err
-	}
-
-	if err := e.EnsureNodeExists(CRITERIA_SYSTEM_PROTOTYPES, false); err != nil {
-		return err
-	}
-	if err := e.ImportPrototypes(false); err != nil {
+	if err := set.Ensure(e); err != nil {
 		return err
 	}
 
@@ -439,6 +430,7 @@ func (e *Engine) Execute(fn EngineFunc) error {
 ////////////////////////////////////////////////////////////////////////////////
 func NewEngine(config *NodesConfig) (*Engine, error) {
 	eng := Engine{Config: config}
+	eng.CriteriaSetSystem = new(CriteriaSet)
 	eng.SetLogger(eng.NewLogger("engine"))
 
 	if dir, err := filepath.Abs(filepath.Dir(os.Args[0])); err != nil {

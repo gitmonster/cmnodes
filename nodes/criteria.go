@@ -8,10 +8,24 @@ type Criteria struct {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) WithScope(scope string) *Criteria {
+	c.Scope = scope
+	c.theMap["sp"] = scope
+	return c
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) HasScope() bool {
+	_, ok := c.theMap["sp"]
+	return ok
+}
+
+////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) GetScope() string {
-	if c.Scope != EMPTY_STRING {
-		return c.Scope
+	if ob, ok := c.theMap["sp"]; ok {
+		return ob.(string)
 	}
+
 	panic("Criteria:: Scope is not yet defined!")
 }
 

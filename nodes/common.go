@@ -12,16 +12,16 @@ const (
 )
 
 type BaseData struct {
-	Id            string         `bson:"_id" toml:"Id"`
+	Id            string         `bson:"_id" toml:"Id" validate:"nonzero"`
 	ParentId      string         `bson:"p" toml:"ParentId"`
-	Name          string         `bson:"nm" toml:"Name"`
+	Name          string         `bson:"nm" toml:"Name" validate:"nonzero"`
 	Order         int            `bson:"o" toml:"Order"`
 	MimeType      string         `bson:"m" toml:"MimeType"`
-	TypeName      string         `bson:"tn" toml:"TypeName"`
+	TypeName      string         `bson:"tn" toml:"TypeName" validate:"nonzero"`
 	Route         string         `bson:"rt" toml:"Route"`
 	RegisterRoute bool           `bson:"rr" toml:"RegisterRoute"`
 	EditRep       Representation `bson:"er" toml:"-"`
-	Scope         string         `bson:"sp" toml:"Scope"`
+	Scope         string         `bson:"sp" toml:"sp" validate:"nonzero"`
 }
 
 type Node interface {
