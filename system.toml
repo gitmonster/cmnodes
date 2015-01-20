@@ -1,6 +1,5 @@
 
-Scope = "SystemLulu"
-
+Scope = "System"
 
 [[Criteria]]
 Id = "54bc1c73618ccf2345600005"
@@ -9,10 +8,48 @@ ParentId = ""
 NodeType = "sitenode"
 Order = 99
 
+[[Criteria]]
+Id = "54bc1c73618cfc345c00fc34"
+Name= "Content"
+ParentId = "54bc1c73618ccf2345600005"
+NodeType = "foldernode"
+Order = 0
 
 [[Criteria]]
-Id = "54bc1c73618ccf2345600005"
-Name = "System"
-ParentId = ""
-NodeType = "sitenode"
-Order = 99
+Id = "54bc1c73618cc458cc0567f5"
+Name= "Templates"
+ParentId = "54bc1c73618ccf2345600005"
+NodeType = "foldernode"
+Order = 1
+
+[[Criteria]]
+Id = "54bc1c3456cdf458cc000453"
+Name= "Prototypes"
+ParentId = "54bc1c73618ccf2345600005"
+NodeType = "foldernode"
+Order = 2
+
+
+[[Prototype]]
+Name= "Site"
+ParentId = "54bc1c3456cdf458cc000453"
+NodeType = "prototypenode"
+Order = 0
+
+[[Prototype]]
+Name= "Folder"
+ParentId = "54bc1c3456cdf458cc000453"
+NodeType = "prototypenode"
+Order = 1
+
+[[Prototype]]
+Name= "Text"
+ParentId = "54bc1c3456cdf458cc000453"
+NodeType = "prototypenode"
+Order = 2
+
+[[Prototype]]
+Name= "Style"
+ParentId = "54bc1c3456cdf458cc000453"
+NodeType = "prototypenode"
+Order = 3

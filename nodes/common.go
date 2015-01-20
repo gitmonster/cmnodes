@@ -63,12 +63,6 @@ var (
 	NODETYPE_STYLE  = GetTypeName(StyleNode{})
 	NODETYPE_FOLDER = GetTypeName(FolderNode{})
 )
-var (
-	CRITERIA_SYSTEM_SITE       = NewCriteria(SYSTEM_SCOPE).WithName("System").WithNodeType(NODETYPE_SITE).WithId(OBJECTID_SYSTEM_SITE).WithParentId(EMPTY_STRING).WithOrder(99)
-	CRITERIA_SYSTEM_CONTENT    = NewCriteria(SYSTEM_SCOPE).WithId(OBJECTID_SYSTEM_CONTENT).WithName("Content").WithNodeType(NODETYPE_FOLDER).WithParentId(OBJECTID_SYSTEM_SITE).WithOrder(0)
-	CRITERIA_SYSTEM_TEMPLATES  = NewCriteria(SYSTEM_SCOPE).WithId(OBJECTID_SYSTEM_TEMPLATES).WithName("Templates").WithNodeType(NODETYPE_FOLDER).WithParentId(OBJECTID_SYSTEM_SITE).WithOrder(1)
-	CRITERIA_SYSTEM_PROTOTYPES = NewCriteria(SYSTEM_SCOPE).WithId(OBJECTID_SYSTEM_PROTOTYPES).WithName("Prototypes").WithNodeType(NODETYPE_FOLDER).WithParentId(OBJECTID_SYSTEM_SITE).WithOrder(2)
-)
 
 // 	acct.Path("/profile").HandlerFunc(ProfileHandler)
 //
