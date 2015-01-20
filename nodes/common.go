@@ -27,6 +27,7 @@ type BaseData struct {
 type Node interface {
 	RenderEditContent(w *bufio.Writer) error
 	IsChildAllowed(typeName string) bool
+	Apply(crit *Criteria)
 	SetParentId(parentId string)
 	GetParentId() string
 	Move(parentId string) error

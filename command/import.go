@@ -15,7 +15,7 @@ func (c *Commander) NewInitProtosCommand() {
 				Usage: "Import prototypes",
 				Action: func(ctx *cli.Context) {
 					c.Execute(func(engine *nodes.Engine) error {
-						return engine.ImportPrototypes(ctx.Bool("force"))
+						return nil //engine.ImportPrototypes(ctx.Bool("force"))
 					}, ctx)
 				},
 				Flags: []cli.Flag{

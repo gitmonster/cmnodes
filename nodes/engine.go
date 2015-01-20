@@ -2,7 +2,6 @@ package nodes
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -12,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rcrowley/go-metrics"
 	"github.com/rcrowley/go-metrics/librato"
+	"gopkg.in/validator.v2"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 )
@@ -225,17 +225,17 @@ func (e *Engine) CreateInstanceByType(nodeType string, abortNoPrototype bool) (N
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) CreateNode(crit *Criteria, abortNoPrototype bool) (Node, error) {
+	if err := validator.Validate(crit); err != nil {
+		return err
+	}
+
 	if node, err := e.CreateInstanceByType(crit.GetNodeType(), abortNoPrototype); err != nil {
 		return nil, err
 	} else {
-		node.SetObjectId(crit.GetId())
-		node.SetParentId(crit.GetParentId())
-		node.SetName(crit.GetName())
-		node.SetOrder(crit.GetOrder())
-
 		session, coll := e.GetMgoSession(crit.GetScope())
 		defer session.Close()
 
+		node.Apply(crit)
 		if err := coll.Insert(node); err != nil {
 			return nil, err
 		}
@@ -313,70 +313,64 @@ func (e *Engine) Startup(connection string) error {
 	return nil
 }
 
-////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) LoadProtoContent(typeName, section string) (string, error) {
-	name := fmt.Sprintf("%s.%s", typeName, section)
-	pt := path.Join(e.StartupDir, "scopes", "protos", name)
+//////////////////////////////////////////////////////////////////////////////////
+//func (e *Engine) LoadProtoContent(typeName, section string) (string, error) {
+//	name := fmt.Sprintf("%s.%s", typeName, section)
+//	pt := path.Join(e.StartupDir, "scopes", "protos", name)
 
-	if _, err := os.Stat(pt); err != nil {
-		if os.IsNotExist(err) {
-			return EMPTY_STRING, nil
-		} else {
-			return EMPTY_STRING, err
-		}
-	}
+//	if _, err := os.Stat(pt); err != nil {
+//		if os.IsNotExist(err) {
+//			return EMPTY_STRING, nil
+//		} else {
+//			return EMPTY_STRING, err
+//		}
+//	}
 
-	if buf, err := ioutil.ReadFile(pt); err != nil {
-		return EMPTY_STRING, err
-	} else {
-		return string(buf), nil
-	}
-}
+//	if buf, err := ioutil.ReadFile(pt); err != nil {
+//		return EMPTY_STRING, err
+//	} else {
+//		return string(buf), nil
+//	}
+//}
 
-////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) ImportPrototypes(force bool) error {
-	session, coll := e.GetMgoSession(SYSTEM_SCOPE)
-	defer session.Close()
+//////////////////////////////////////////////////////////////////////////////////
+//func (e *Engine) ImportPrototypes(force bool) error {
+//	session, coll := e.GetMgoSession(SYSTEM_SCOPE)
+//	defer session.Close()
 
-	if force {
-		e.Logger.Infof("Import prototypes | buid new")
-		coll.RemoveAll(nil)
-	}
+//	if force {
+//		e.Logger.Infof("Import prototypes | buid new")
+//		coll.RemoveAll(nil)
+//	}
 
-	crit := NewCriteria(SYSTEM_SCOPE).
-		WithParentId(OBJECTID_SYSTEM_PROTOTYPES)
+//	crit := NewCriteria(SYSTEM_SCOPE).
+//		WithParentId(OBJECTID_SYSTEM_PROTOTYPES)
 
-	for tp, fn := range TypeMap {
-		crit.WithNodeType(tp)
-		if ex, err := e.NodeExists(crit); err != nil {
-			return err
-		} else if !ex {
-			e.Logger.Infof("Import new prototype for %s", tp)
+//	for tp, fn := range TypeMap {
+//		crit.WithNodeType(tp)
+//		if ex, err := e.NodeExists(crit); err != nil {
+//			return err
+//		} else if !ex {
+//			e.Logger.Infof("Import new prototype for %s", tp)
 
-			node := fn(e)
-			node.NewObjectId()
-			node.SetParentId(OBJECTID_SYSTEM_PROTOTYPES)
+//			node := fn(e)
+//			node.NewObjectId()
+//			node.SetParentId(OBJECTID_SYSTEM_PROTOTYPES)
 
-			if cont, err := e.LoadProtoContent(tp, "edit"); err != nil {
-				return err
-			} else {
-				node.SetEditTemplate(cont)
-			}
+//			if cont, err := e.LoadProtoContent(tp, "edit"); err != nil {
+//				return err
+//			} else {
+//				node.SetEditTemplate(cont)
+//			}
 
-			if err := coll.Insert(node); err != nil {
-				return err
-			}
-		}
-	}
+//			if err := coll.Insert(node); err != nil {
+//				return err
+//			}
+//		}
+//	}
 
-	return nil
-}
-
-////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) EnsurePrototypes() error {
-
-	return nil
-}
+//	return nil
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) EnsureNodeExists(crit *Criteria, abortNoPrototype bool) error {

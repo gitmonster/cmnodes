@@ -34,8 +34,6 @@ func (n *StyleNode) IsChildAllowed(typeName string) bool {
 func NewStyleNode(engine *Engine) *StyleNode {
 	node := StyleNode{}
 	node.Init(node, engine)
-	node.Name = "StyleNode"
-	node.MimeType = "text/css"
-	node.IsTemplate = false
+
 	return &node
 }

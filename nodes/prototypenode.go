@@ -2,11 +2,13 @@ package nodes
 
 import (
 	"net/http"
+
 	"github.com/gorilla/mux"
 )
 
 type PrototypeNode struct {
-	NodeBase   `bson:",inline"`
+	NodeBase `bson:",inline"`
+	Proto    BaseData `bson:"pr" toml:"Proto"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,12 +20,12 @@ func init() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *TextNode) IsChildAllowed(typeName string) bool {
+func (n *PrototypeNode) IsChildAllowed(typeName string) bool {
 	return false
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *TextNode) RegisterRoute(router *mux.Router) {
+func (n *PrototypeNode) RegisterRoute(router *mux.Router) {
 	router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
 		// Assumes you have a template in ./templates called "example.tmpl"
 		// $ mkdir -p templates && echo "<h1>Hello HTML world.</h1>" > templates/example.tmpl
@@ -32,7 +34,7 @@ func (n *TextNode) RegisterRoute(router *mux.Router) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func NewPrototypeNode(engine *Engine) *TextNode {
+func NewPrototypeNode(engine *Engine) *PrototypeNode {
 	node := PrototypeNode{}
 	node.Init(node, engine)
 	return &node
