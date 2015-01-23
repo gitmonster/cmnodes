@@ -8,7 +8,7 @@ import (
 
 type PrototypeNode struct {
 	NodeBase `bson:",inline"`
-	Proto    BaseData `bson:"pr" toml:"Proto"`
+	Proto    BaseData `bson:"pr"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////

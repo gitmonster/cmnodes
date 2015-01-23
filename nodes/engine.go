@@ -24,7 +24,6 @@ type Engine struct {
 	MongoSessionProvider
 	negroni           *negroni.Negroni
 	Config            *NodesConfig
-	CriteriaSetSystem *CriteriaSet
 	StartupDir        string
 }
 
@@ -203,7 +202,7 @@ func (e *Engine) CreateInstanceByType(nodeType string, abortNoPrototype bool) (N
 
 		crit := NewCriteria(SYSTEM_SCOPE).
 			WithParentId(OBJECTID_SYSTEM_PROTOTYPES).
-			WithNodeType(nodeType)
+			WithProtoNodeType(nodeType)
 
 		if ex, err := e.NodeExists(crit); err != nil {
 			return nil, err

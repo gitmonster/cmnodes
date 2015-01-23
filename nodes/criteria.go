@@ -5,6 +5,13 @@ import "labix.org/v2/mgo/bson"
 type Criteria struct {
 	BaseData `toml:"-"`
 	theMap   bson.M `toml:"-"`
+	Data BaseData `toml:"Data"` //Payload for PrototypeNodes
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) HasProtoData() bool {
+	return c.Data != nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////

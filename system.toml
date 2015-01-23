@@ -34,15 +34,16 @@ Name= "Site"
 ParentId = "54bc1c3456cdf458cc000453"
 NodeType = "prototypenode"
 Order = 0
-	[[Prototype.Proto]]
+	[[Prototype.Data]]
 	NodeType = "sitenode"
+	
 
 [[Prototype]]
 Name= "Folder"
 ParentId = "54bc1c3456cdf458cc000453"
 NodeType = "prototypenode"
 Order = 1
-	[[Prototype.Proto]]
+	[[Prototype.Data]]
 	NodeType = "foldernode"
 
 [[Prototype]]
@@ -50,7 +51,7 @@ Name= "Text"
 ParentId = "54bc1c3456cdf458cc000453"
 NodeType = "prototypenode"
 Order = 2
-	[[Prototype.Proto]]
+	[[Prototype.Data]]
 	NodeType = "textnode"
 	MimeType = "text/html"
 
@@ -60,6 +61,6 @@ Name= "Style"
 ParentId = "54bc1c3456cdf458cc000453"
 NodeType = "prototypenode"
 Order = 3
-	[[Prototype.Proto]]
+	[[Prototype.Data]]
 	NodeType = "stylenode"
 	MimeType = "text/css"
