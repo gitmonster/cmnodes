@@ -19,8 +19,8 @@ func init() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *StyleNode) RegisterRoute(router *mux.Router) {
-	router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
+func (n *StyleNode) RegisterRoute(route string, router *mux.Router) {
+	router.HandleFunc(route, func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("Content here."))
 	})
 }
@@ -34,6 +34,5 @@ func (n *StyleNode) IsChildAllowed(typeName string) bool {
 func NewStyleNode(engine *Engine) *StyleNode {
 	node := StyleNode{}
 	node.Init(node, engine)
-
 	return &node
 }

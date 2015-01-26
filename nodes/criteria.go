@@ -4,19 +4,18 @@ import "labix.org/v2/mgo/bson"
 
 type Criteria struct {
 	BaseData `toml:"-"`
-	theMap   bson.M `toml:"-"`
-	Data BaseData `toml:"Data"` //Payload for PrototypeNodes
+	theMap   bson.M   `toml:"-"`
+	Data     BaseData `toml:"Data"` //Payload for PrototypeNodes
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithProtoNodeType(nodeType string) *Criteria {
-    if !c.HasProtoData(){
-        c.Data = BaseData{TypeName: nodeType}
-    }
+	if !c.HasProtoData() {
+		c.Data = BaseData{TypeName: nodeType}
+	}
 
 	c.theMap["pr"] = bson.M{
-	    "tn":nodeType,
+		"tn": nodeType,
 	}
 	return c
 }
@@ -56,19 +55,25 @@ func (c *Criteria) WithId(id string) *Criteria {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) GetId() string {
+func (c *Criteria) HasObjectId() bool {
+	_, ok := c.theMap["_id"]
+	return ok
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) GetObjectId() string {
 	if ob, ok := c.theMap["_id"]; ok {
 		return ob.(string)
 	}
 	panic("Criteria:: Id is not yet defined!")
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) HasName() bool {
 	_, ok := c.theMap["nm"]
 	return ok
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithName(name string) *Criteria {
 	c.Name = name
@@ -105,11 +110,13 @@ func (c *Criteria) WithOrder(order int) *Criteria {
 	c.theMap["o"] = order
 	return c
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) HasOrder() bool {
 	_, ok := c.theMap["o"]
 	return ok
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) GetOrder() int {
 	if ob, ok := c.theMap["o"]; ok {
@@ -124,11 +131,13 @@ func (c *Criteria) WithNodeType(nodeType string) *Criteria {
 	c.theMap["tn"] = nodeType
 	return c
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) HasNodeType() bool {
 	_, ok := c.theMap["tn"]
 	return ok
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) GetNodeType() string {
 	if ob, ok := c.theMap["tn"]; ok {

@@ -23,22 +23,24 @@ func (n *NodeBase) Init(inst interface{}, e *Engine) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *NodeBase) Apply(crit *Criteria) {
-    if crit.HasId(){
-        n.Id = crit.GetId()
-    }
-    if crit.HasScope(){
-        n.Scope = crit.GetScope()
-    }
-    if crit.HasName(){
-        n.Name = crit.GetName()
-    }
-    if crit.HasNodeType(){
-        n.NodeType = crit.GetNodeType()
-    }
-    if crit.HasOrder(){
-        n.Order = crit.GetOrder()
-    }
+func (n *NodeBase) Apply(crit *Criteria) error {
+	if crit.HasObjectId() {
+		n.Id = crit.GetObjectId()
+	}
+	if crit.HasScope() {
+		n.Scope = crit.GetScope()
+	}
+	if crit.HasName() {
+		n.Name = crit.GetName()
+	}
+	if crit.HasNodeType() {
+		n.TypeName = crit.GetNodeType()
+	}
+	if crit.HasOrder() {
+		n.Order = crit.GetOrder()
+	}
+
+	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +51,11 @@ func (n *NodeBase) SetEditTemplate(content string) {
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) SetObjectId(objectId string) {
 	n.Id = objectId
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (n *NodeBase) GetObjectId() string {
+	return n.Id
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,6 +84,11 @@ func (n *NodeBase) GetParentId() string {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+func (n *NodeBase) MustRegisterRoute() bool {
+	return n.RegRoute
+}
+
+////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) RenderEditContent(w *bufio.Writer) error {
 	if err := n.EditRep.Render(w); err != nil {
 		return err
@@ -89,11 +101,6 @@ func (n *NodeBase) RenderEditContent(w *bufio.Writer) error {
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) EnumerateChilds(fn EnumFunc) error {
 	return n.Engine.EnumerateChilds(n.Scope, n.Id, fn)
-}
-
-////////////////////////////////////////////////////////////////////////////////
-func (n *NodeBase) assembleRoute() string {
-	return n.Engine.AssembleRouteFor(n.Scope, n.Id)
 }
 
 ////////////////////////////////////////////////////////////////////////////////

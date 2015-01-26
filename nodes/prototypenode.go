@@ -25,8 +25,8 @@ func (n *PrototypeNode) IsChildAllowed(typeName string) bool {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *PrototypeNode) RegisterRoute(router *mux.Router) {
-	router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
+func (n *PrototypeNode) RegisterRoute(route string, router *mux.Router) {
+	router.HandleFunc(route, func(w http.ResponseWriter, req *http.Request) {
 		// Assumes you have a template in ./templates called "example.tmpl"
 		// $ mkdir -p templates && echo "<h1>Hello HTML world.</h1>" > templates/example.tmpl
 		n.Render.HTML(w, http.StatusOK, "example", nil)

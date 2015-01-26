@@ -24,8 +24,8 @@ func (n *FolderNode) IsChildAllowed(typeName string) bool {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *FolderNode) RegisterRoute(router *mux.Router) {
-	router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
+func (n *FolderNode) RegisterRoute(route string, router *mux.Router) {
+	router.HandleFunc(route, func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("This is a folder."))
 	})
 }

@@ -20,7 +20,7 @@ func init() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *SiteNode) RegisterRoute(router *mux.Router) {
+func (n *SiteNode) RegisterRoute(route string, router *mux.Router) {
 	//router.HandleFunc(n.assembleRoute(), func(w http.ResponseWriter, req *http.Request) {
 	//	w.Write([]byte("Content here."))
 	//})

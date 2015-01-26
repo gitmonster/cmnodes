@@ -3,7 +3,6 @@ package nodes
 import (
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"time"
 
@@ -22,9 +21,9 @@ type EngineFunc func(engine *Engine) error
 type Engine struct {
 	Loggable
 	MongoSessionProvider
-	negroni           *negroni.Negroni
-	Config            *NodesConfig
-	StartupDir        string
+	negroni    *negroni.Negroni
+	Config     *NodesConfig
+	StartupDir string
 }
 
 var (
@@ -225,7 +224,7 @@ func (e *Engine) CreateInstanceByType(nodeType string, abortNoPrototype bool) (N
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) CreateNode(crit *Criteria, abortNoPrototype bool) (Node, error) {
 	if err := validator.Validate(crit); err != nil {
-		return err
+		return nil, err
 	}
 
 	if node, err := e.CreateInstanceByType(crit.GetNodeType(), abortNoPrototype); err != nil {
@@ -234,8 +233,10 @@ func (e *Engine) CreateNode(crit *Criteria, abortNoPrototype bool) (Node, error)
 		session, coll := e.GetMgoSession(crit.GetScope())
 		defer session.Close()
 
-		node.Apply(crit)
-		if err := coll.Insert(node); err != nil {
+		if err := node.Apply(crit); err != nil {
+			return nil, err
+		}
+		if _, err := coll.UpsertId(node.GetObjectId(), node); err != nil {
 			return nil, err
 		}
 
@@ -244,7 +245,7 @@ func (e *Engine) CreateNode(crit *Criteria, abortNoPrototype bool) (Node, error)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) RegisterAllRoutes(scope string, router *mux.Router) error {
+func (e *Engine) RegisterRoutesForeScope(scope string, router *mux.Router) error {
 	session, coll := e.GetMgoSession(scope)
 	defer session.Close()
 
@@ -256,9 +257,13 @@ func (e *Engine) RegisterAllRoutes(scope string, router *mux.Router) error {
 	var node interface{}
 	for iter.Next(&node) {
 		if n, ok := node.(Node); !ok {
-			return fmt.Errorf("RegisterAllRoutes::Could not assert child to Node type")
-		} else {
-			n.RegisterRoute(router)
+			return fmt.Errorf("RegisterRoutesForScope::Could not assert child to Node type")
+		} else if n.MustRegisterRoute() {
+			if r, err := e.AssembleRouteFor(scope, n.GetObjectId()); err != nil {
+				return err
+			} else {
+				n.RegisterRoute(r, router)
+			}
 		}
 	}
 
@@ -270,8 +275,8 @@ func (e *Engine) RegisterAllRoutes(scope string, router *mux.Router) error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) AssembleRouteFor(scope, nodeId string) string {
-	return EMPTY_STRING
+func (e *Engine) AssembleRouteFor(scope, nodeId string) (string, error) {
+	return EMPTY_STRING, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -302,7 +307,7 @@ func (e *Engine) Startup(connection string) error {
 	))
 
 	sysRouter := systemRouter.PathPrefix("/nodes").Subrouter()
-	if err := e.RegisterAllRoutes(SYSTEM_SCOPE, sysRouter); err != nil {
+	if err := e.RegisterRoutesForeScope(SYSTEM_SCOPE, sysRouter); err != nil {
 		return err
 	}
 
@@ -311,65 +316,6 @@ func (e *Engine) Startup(connection string) error {
 	e.negroni.Run(connection)
 	return nil
 }
-
-//////////////////////////////////////////////////////////////////////////////////
-//func (e *Engine) LoadProtoContent(typeName, section string) (string, error) {
-//	name := fmt.Sprintf("%s.%s", typeName, section)
-//	pt := path.Join(e.StartupDir, "scopes", "protos", name)
-
-//	if _, err := os.Stat(pt); err != nil {
-//		if os.IsNotExist(err) {
-//			return EMPTY_STRING, nil
-//		} else {
-//			return EMPTY_STRING, err
-//		}
-//	}
-
-//	if buf, err := ioutil.ReadFile(pt); err != nil {
-//		return EMPTY_STRING, err
-//	} else {
-//		return string(buf), nil
-//	}
-//}
-
-//////////////////////////////////////////////////////////////////////////////////
-//func (e *Engine) ImportPrototypes(force bool) error {
-//	session, coll := e.GetMgoSession(SYSTEM_SCOPE)
-//	defer session.Close()
-
-//	if force {
-//		e.Logger.Infof("Import prototypes | buid new")
-//		coll.RemoveAll(nil)
-//	}
-
-//	crit := NewCriteria(SYSTEM_SCOPE).
-//		WithParentId(OBJECTID_SYSTEM_PROTOTYPES)
-
-//	for tp, fn := range TypeMap {
-//		crit.WithNodeType(tp)
-//		if ex, err := e.NodeExists(crit); err != nil {
-//			return err
-//		} else if !ex {
-//			e.Logger.Infof("Import new prototype for %s", tp)
-
-//			node := fn(e)
-//			node.NewObjectId()
-//			node.SetParentId(OBJECTID_SYSTEM_PROTOTYPES)
-
-//			if cont, err := e.LoadProtoContent(tp, "edit"); err != nil {
-//				return err
-//			} else {
-//				node.SetEditTemplate(cont)
-//			}
-
-//			if err := coll.Insert(node); err != nil {
-//				return err
-//			}
-//		}
-//	}
-
-//	return nil
-//}
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) EnsureNodeExists(crit *Criteria, abortNoPrototype bool) error {
@@ -387,15 +333,6 @@ func (e *Engine) EnsureNodeExists(crit *Criteria, abortNoPrototype bool) error {
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) CheckSystemIntegrity() error {
 	e.Logger.Infof("Check system integrity...")
-
-	set := e.CriteriaSetSystem
-	if err := set.LoadFromFile(path.Join(e.StartupDir, "system.toml")); err != nil {
-		return err
-	}
-
-	if err := set.Ensure(e); err != nil {
-		return err
-	}
 
 	return nil
 }
@@ -423,7 +360,7 @@ func (e *Engine) Execute(fn EngineFunc) error {
 ////////////////////////////////////////////////////////////////////////////////
 func NewEngine(config *NodesConfig) (*Engine, error) {
 	eng := Engine{Config: config}
-	eng.CriteriaSetSystem = new(CriteriaSet)
+
 	eng.SetLogger(eng.NewLogger("engine"))
 
 	if dir, err := filepath.Abs(filepath.Dir(os.Args[0])); err != nil {
@@ -458,8 +395,8 @@ func NewEngine(config *NodesConfig) (*Engine, error) {
 		}
 	}
 
-	//if err := eng.CheckSystemIntegrity(); err != nil {
-	//	return nil, err
-	//}
+	if err := eng.CheckSystemIntegrity(); err != nil {
+		return nil, err
+	}
 	return &eng, nil
 }

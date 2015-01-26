@@ -12,31 +12,33 @@ const (
 )
 
 type BaseData struct {
-	Id            string         `bson:"_id" toml:"Id" validate:"nonzero"`
-	ParentId      string         `bson:"p" toml:"ParentId"`
-	Name          string         `bson:"nm" toml:"Name" validate:"nonzero"`
-	Order         int            `bson:"o" toml:"Order"`
-	MimeType      string         `bson:"m" toml:"MimeType"`
-	TypeName      string         `bson:"tn" toml:"TypeName" validate:"nonzero"`
-	Route         string         `bson:"rt" toml:"Route"`
-	RegisterRoute bool           `bson:"rr" toml:"RegisterRoute"`
-	EditRep       Representation `bson:"er" toml:"-"`
-	Scope         string         `bson:"sp" toml:"sp" validate:"nonzero"`
+	Id       string         `bson:"_id" toml:"Id" validate:"nonzero"`
+	ParentId string         `bson:"p" toml:"ParentId"`
+	Name     string         `bson:"nm" toml:"Name" validate:"nonzero"`
+	Order    int            `bson:"o" toml:"Order"`
+	MimeType string         `bson:"m" toml:"MimeType"`
+	TypeName string         `bson:"tn" toml:"TypeName" validate:"nonzero"`
+	Route    string         `bson:"rt" toml:"Route"`
+	RegRoute bool           `bson:"rr" toml:"RegisterRoute"`
+	EditRep  Representation `bson:"er" toml:"-"`
+	Scope    string         `bson:"sp" toml:"sp" validate:"nonzero"`
 }
 
 type Node interface {
 	RenderEditContent(w *bufio.Writer) error
 	IsChildAllowed(typeName string) bool
-	Apply(crit *Criteria)
 	SetParentId(parentId string)
 	GetParentId() string
+	MustRegisterRoute() bool
 	Move(parentId string) error
 	SetName(name string)
+	Apply(crit *Criteria) error
 	SetOrder(order int)
 	SetEditTemplate(content string)
 	SetObjectId(objectId string)
+	GetObjectId() string
 	NewObjectId()
-	RegisterRoute(router *mux.Router)
+	RegisterRoute(route string, router *mux.Router)
 	Remove() error
 }
 

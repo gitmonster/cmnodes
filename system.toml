@@ -6,6 +6,7 @@ Id = "54bc1c73618ccf2345600005"
 Name= "System"
 ParentId = ""
 NodeType = "sitenode"
+RegisterRoute = true
 Order = 99
 
 [[Criteria]]
@@ -13,6 +14,7 @@ Id = "54bc1c73618cfc345c00fc34"
 Name= "Content"
 ParentId = "54bc1c73618ccf2345600005"
 NodeType = "foldernode"
+RegisterRoute = false
 Order = 0
 
 [[Criteria]]
@@ -20,6 +22,7 @@ Id = "54bc1c73618cc458cc0567f5"
 Name= "Templates"
 ParentId = "54bc1c73618ccf2345600005"
 NodeType = "foldernode"
+RegisterRoute = false
 Order = 1
 
 [[Criteria]]
@@ -33,26 +36,32 @@ Order = 2
 Name= "Site"
 ParentId = "54bc1c3456cdf458cc000453"
 NodeType = "prototypenode"
+RegisterRoute = true
 Order = 0
 	[[Prototype.Data]]
 	NodeType = "sitenode"
+	RegisterRoute = true
 	
 
 [[Prototype]]
 Name= "Folder"
 ParentId = "54bc1c3456cdf458cc000453"
 NodeType = "prototypenode"
+RegisterRoute = true
 Order = 1
 	[[Prototype.Data]]
 	NodeType = "foldernode"
+	RegisterRoute = false
 
 [[Prototype]]
 Name= "Text"
 ParentId = "54bc1c3456cdf458cc000453"
 NodeType = "prototypenode"
+RegisterRoute = true
 Order = 2
 	[[Prototype.Data]]
 	NodeType = "textnode"
+	RegisterRoute = false
 	MimeType = "text/html"
 
 
@@ -63,4 +72,5 @@ NodeType = "prototypenode"
 Order = 3
 	[[Prototype.Data]]
 	NodeType = "stylenode"
+	RegisterRoute = false
 	MimeType = "text/css"
