@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path"
 	"reflect"
 	"strconv"
 	"strings"
@@ -85,6 +86,15 @@ func GetStructFieldTypeFromTag(entity interface{}, searchTag string) (reflect.Ty
 		}
 	}
 	return nil, fmt.Errorf("GetStructFieldTypeFromTag: tag %s not found", searchTag)
+}
+
+//////////////////////////////////////////////////////////////////////////////
+func AbsPath(name string) (string, error) {
+	if path.IsAbs(name) {
+		return name, nil
+	}
+	wd, err := os.Getwd()
+	return path.Join(wd, name), err
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
