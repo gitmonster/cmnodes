@@ -10,8 +10,20 @@ type Criteria struct {
 
 
 ////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) WithProtoNodeType(nodeType string) *Criteria {
+    if !c.HasProtoData(){
+        c.Data = BaseData{TypeName: nodeType}
+    }
+
+	c.theMap["pr"] = bson.M{
+	    "tn":nodeType,
+	}
+	return c
+}
+
+////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) HasProtoData() bool {
-	return c.Data != nil
+	return c.Data != BaseData{}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +63,12 @@ func (c *Criteria) GetId() string {
 	panic("Criteria:: Id is not yet defined!")
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) HasName() bool {
+	_, ok := c.theMap["nm"]
+	return ok
+}
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithName(name string) *Criteria {
 	c.Name = name
@@ -87,7 +105,11 @@ func (c *Criteria) WithOrder(order int) *Criteria {
 	c.theMap["o"] = order
 	return c
 }
-
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) HasOrder() bool {
+	_, ok := c.theMap["o"]
+	return ok
+}
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) GetOrder() int {
 	if ob, ok := c.theMap["o"]; ok {
@@ -102,7 +124,11 @@ func (c *Criteria) WithNodeType(nodeType string) *Criteria {
 	c.theMap["tn"] = nodeType
 	return c
 }
-
+////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) HasNodeType() bool {
+	_, ok := c.theMap["tn"]
+	return ok
+}
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) GetNodeType() string {
 	if ob, ok := c.theMap["tn"]; ok {
@@ -119,7 +145,7 @@ func (c *Criteria) GetSelector() bson.M {
 ////////////////////////////////////////////////////////////////////////////////
 func NewCriteria(scope string) *Criteria {
 	cr := Criteria{}
-	cr.Scope = scope
 	cr.theMap = bson.M{}
+	cr.WithScope(scope)
 	return &cr
 }

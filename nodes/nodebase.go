@@ -24,7 +24,21 @@ func (n *NodeBase) Init(inst interface{}, e *Engine) {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) Apply(crit *Criteria) {
-
+    if crit.HasId(){
+        n.Id = crit.GetId()
+    }
+    if crit.HasScope(){
+        n.Scope = crit.GetScope()
+    }
+    if crit.HasName(){
+        n.Name = crit.GetName()
+    }
+    if crit.HasNodeType(){
+        n.NodeType = crit.GetNodeType()
+    }
+    if crit.HasOrder(){
+        n.Order = crit.GetOrder()
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
