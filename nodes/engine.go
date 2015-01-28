@@ -131,7 +131,8 @@ func (e *Engine) MoveNode(scope, srcNodeType, srcNodeId, targetNodeId string) er
 	} else if !ex {
 		return fmt.Errorf("MoveNode::Source node %s doesn't exist.", targetNodeId)
 	}
-	crit.WithId(targetNodeId)
+
+	crit.WithObjectId(targetNodeId)
 	// check if target node exists
 	if ex, err := e.NodeExists(crit); err != nil {
 		return err
@@ -245,7 +246,7 @@ func (e *Engine) CreateNode(crit *Criteria, abortNoPrototype bool) (Node, error)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (e *Engine) RegisterRoutesForeScope(scope string, router *mux.Router) error {
+func (e *Engine) RegisterRoutesForScope(scope string, router *mux.Router) error {
 	session, coll := e.GetMgoSession(scope)
 	defer session.Close()
 
@@ -258,7 +259,7 @@ func (e *Engine) RegisterRoutesForeScope(scope string, router *mux.Router) error
 	for iter.Next(&node) {
 		if n, ok := node.(Node); !ok {
 			return fmt.Errorf("RegisterRoutesForScope::Could not assert child to Node type")
-		} else if n.MustRegisterRoute() {
+		} else{
 			if r, err := e.AssembleRouteFor(scope, n.GetObjectId()); err != nil {
 				return err
 			} else {
@@ -307,7 +308,7 @@ func (e *Engine) Startup(connection string) error {
 	))
 
 	sysRouter := systemRouter.PathPrefix("/nodes").Subrouter()
-	if err := e.RegisterRoutesForeScope(SYSTEM_SCOPE, sysRouter); err != nil {
+	if err := e.RegisterRoutesForScope(SYSTEM_SCOPE, sysRouter); err != nil {
 		return err
 	}
 

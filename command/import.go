@@ -14,7 +14,7 @@ func (c *Commander) NewInitProtosCommand() {
 				Name:  "system",
 				Usage: "Import system node structure with object prototypes",
 				Action: func(ctx *cli.Context) {
-					var path string 
+					var path string
 					if len(ctx.Args()) > 0 {
     					path = AbsPath(ctx.Args()[0])
   					}

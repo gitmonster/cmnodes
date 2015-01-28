@@ -48,7 +48,7 @@ func (c *Criteria) GetScope() string {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) WithId(id string) *Criteria {
+func (c *Criteria) WithObjectId(id string) *Criteria {
 	c.Id = id
 	c.theMap["_id"] = id
 	return c
