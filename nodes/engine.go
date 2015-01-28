@@ -23,6 +23,7 @@ type Engine struct {
 	MongoSessionProvider
 	negroni    *negroni.Negroni
 	Config     *NodesConfig
+	SystemCriteria *CriteriaSet
 	StartupDir string
 }
 
@@ -339,6 +340,24 @@ func (e *Engine) CheckSystemIntegrity() error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+func (e *Engine) ImportSystem(force bool, filePath string) error {
+    if filePath = EMPTY_STRING{
+        filePath = path.Join(e.StartupDir, "system.toml")
+    }
+
+    set := e.SystemCriteria
+	if err := set.LoadFromFile(filePath); err != nil {
+		return err
+	}
+
+	if err := set.Ensure(force,e); err != nil {
+		return err
+	}
+    return nil
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) NodeExists(crit *Criteria) (bool, error) {
 	session, coll := e.GetMgoSession(crit.GetScope())
 	defer session.Close()
@@ -361,7 +380,7 @@ func (e *Engine) Execute(fn EngineFunc) error {
 ////////////////////////////////////////////////////////////////////////////////
 func NewEngine(config *NodesConfig) (*Engine, error) {
 	eng := Engine{Config: config}
-
+    eng.SystemCriteria = make(CriteriaSet)
 	eng.SetLogger(eng.NewLogger("engine"))
 
 	if dir, err := filepath.Abs(filepath.Dir(os.Args[0])); err != nil {

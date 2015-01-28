@@ -39,7 +39,7 @@ func (c *CriteriaSet) LoadFromFile(path string) error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (c *CriteriaSet) Ensure(e *Engine) error {
+func (c *CriteriaSet) Ensure(force bool, e *Engine) error {
 	// load prototypes first
 	for _, p := range c.Prototypes {
 		if !p.HasScope() {
