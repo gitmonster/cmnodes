@@ -72,6 +72,51 @@ func (e *Engine) EnumerateChilds(scope, nodeId string, fn EnumFunc) error {
 	return nil
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+func (e *Engine) AddReference(scope, nodeId, refNodeId string) error {
+	session, coll := e.GetMgoSession(scope)
+	defer session.Close()
+
+    upd := bson.M{"$push":
+        bson.M{
+            "refs": refNodeId
+        },
+    }
+
+    return coll.UpdateId(nodeId, upd)
+)
+
+
+
+
+	iter := coll.Find(bson.M{"p": nodeId}).Iter()
+	if err := iter.Err(); err != nil {
+		return err
+	}
+
+	var node interface{}
+	for iter.Next(&node) {
+		if n, ok := node.(Node); !ok {
+			return fmt.Errorf("EnumerateChilds::Could not assert child to Node type")
+		} else {
+			if err := fn(n); err != nil {
+				return err
+			}
+		}
+	}
+
+	if err := iter.Close(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) CheckNodeIsNoChild(scope, nodeId string, parentNodeId string) (bool, error) {
 	if nodeId == parentNodeId {

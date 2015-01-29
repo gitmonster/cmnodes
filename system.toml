@@ -50,6 +50,7 @@ NodeType = "prototypenode"
 RegisterRoute = true
 Order = 1
 	[[Prototype.Data]]
+	Name = "FolderNode"
 	NodeType = "foldernode"
 	RegisterRoute = false
 
@@ -60,6 +61,7 @@ NodeType = "prototypenode"
 RegisterRoute = true
 Order = 2
 	[[Prototype.Data]]
+	Name = "TextNode"
 	NodeType = "textnode"
 	RegisterRoute = false
 	MimeType = "text/html"
@@ -71,6 +73,22 @@ ParentId = "54bc1c3456cdf458cc000453"
 NodeType = "prototypenode"
 Order = 3
 	[[Prototype.Data]]
+	Name = "StyleNode"
 	NodeType = "stylenode"
 	RegisterRoute = false
 	MimeType = "text/css"
+	
+[[Prototype]]
+Name= "File"
+ParentId = "54bc1c3456cdf458cc000453"
+NodeType = "prototypenode"
+Order = 3
+	[[Prototype.Data]]
+	Name = "FileNode"
+	NodeType = "filenode"
+	RegisterRoute = true
+	
+	
+	
+	
+	

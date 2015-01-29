@@ -2,31 +2,35 @@ package nodes
 
 import (
 	"net/http"
-
 	"github.com/gorilla/mux"
 )
 
-type TextNode struct {
+type FileNode struct {
 	NodeBase   `bson:",inline"`
-	Content    NodeContent `bson:"c"`
-	IsTemplate bool        `bson:"ist"`
+	ResourceId string `bson:"rid"`
+    RefNodes   []string `bson:"refs"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func init() {
-	RegisterNodeType(TextNode{}, func(engine *Engine) Node {
-		node := Node(NewTextNode(engine))
+	RegisterNodeType(FileNode{}, func(engine *Engine) Node {
+		node := Node(NewFileNode(engine))
 		return node
 	})
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *TextNode) IsChildAllowed(typeName string) bool {
+func (n *FileNode) IsChildAllowed(typeName string) bool {
 	return false
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (n *TextNode) RegisterRoute(route string, router *mux.Router) {
+func (n *FileNode) AddReference(refNodeId string) error {
+    return n.Engine.AddReference(n.Scope, n.Id, refNodeId)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (n *FileNode) RegisterRoute(route string, router *mux.Router) {
 	router.HandleFunc(route, func(w http.ResponseWriter, req *http.Request) {
 		// Assumes you have a template in ./templates called "example.tmpl"
 		// $ mkdir -p templates && echo "<h1>Hello HTML world.</h1>" > templates/example.tmpl
@@ -35,8 +39,8 @@ func (n *TextNode) RegisterRoute(route string, router *mux.Router) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func NewTextNode(engine *Engine) *TextNode {
-	node := TextNode{}
+func NewFileNode(engine *Engine) *FileNode {
+	node := FileNode{}
 	node.Init(node, engine)
 	return &node
 }
