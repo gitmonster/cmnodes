@@ -3,6 +3,7 @@ package nodes
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -21,10 +22,10 @@ type EngineFunc func(engine *Engine) error
 type Engine struct {
 	Loggable
 	MongoSessionProvider
-	negroni    *negroni.Negroni
-	Config     *NodesConfig
+	negroni        *negroni.Negroni
+	Config         *NodesConfig
 	SystemCriteria *CriteriaSet
-	StartupDir string
+	StartupDir     string
 }
 
 var (
@@ -72,50 +73,18 @@ func (e *Engine) EnumerateChilds(scope, nodeId string, fn EnumFunc) error {
 	return nil
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) AddReference(scope, nodeId, refNodeId string) error {
 	session, coll := e.GetMgoSession(scope)
 	defer session.Close()
 
-    upd := bson.M{"$push":
-        bson.M{
-            "refs": refNodeId
-        },
-    }
-
-    return coll.UpdateId(nodeId, upd)
-)
-
-
-
-
-	iter := coll.Find(bson.M{"p": nodeId}).Iter()
-	if err := iter.Err(); err != nil {
-		return err
+	upd := bson.M{"$push": bson.M{
+		"refs": refNodeId,
+	},
 	}
 
-	var node interface{}
-	for iter.Next(&node) {
-		if n, ok := node.(Node); !ok {
-			return fmt.Errorf("EnumerateChilds::Could not assert child to Node type")
-		} else {
-			if err := fn(n); err != nil {
-				return err
-			}
-		}
-	}
-
-	if err := iter.Close(); err != nil {
-		return err
-	}
-
-	return nil
+	return coll.UpdateId(nodeId, upd)
 }
-
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) CheckNodeIsNoChild(scope, nodeId string, parentNodeId string) (bool, error) {
@@ -171,7 +140,7 @@ func (e *Engine) MoveNode(scope, srcNodeType, srcNodeId, targetNodeId string) er
 
 	// check if source node exists
 
-	crit := NewCriteria(scope).WithId(srcNodeId)
+	crit := NewCriteria(scope).WithObjectId(srcNodeId)
 	if ex, err := e.NodeExists(crit); err != nil {
 		return err
 	} else if !ex {
@@ -305,7 +274,7 @@ func (e *Engine) RegisterRoutesForScope(scope string, router *mux.Router) error 
 	for iter.Next(&node) {
 		if n, ok := node.(Node); !ok {
 			return fmt.Errorf("RegisterRoutesForScope::Could not assert child to Node type")
-		} else{
+		} else {
 			if r, err := e.AssembleRouteFor(scope, n.GetObjectId()); err != nil {
 				return err
 			} else {
@@ -386,21 +355,20 @@ func (e *Engine) CheckSystemIntegrity() error {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) ImportSystem(force bool, filePath string) error {
-    if filePath = EMPTY_STRING{
-        filePath = path.Join(e.StartupDir, "system.toml")
-    }
+	if filePath == EMPTY_STRING {
+		filePath = path.Join(e.StartupDir, "system.toml")
+	}
 
-    set := e.SystemCriteria
+	set := e.SystemCriteria
 	if err := set.LoadFromFile(filePath); err != nil {
 		return err
 	}
 
-	if err := set.Ensure(force,e); err != nil {
+	if err := set.Ensure(force, e); err != nil {
 		return err
 	}
-    return nil
+	return nil
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) NodeExists(crit *Criteria) (bool, error) {
@@ -425,7 +393,7 @@ func (e *Engine) Execute(fn EngineFunc) error {
 ////////////////////////////////////////////////////////////////////////////////
 func NewEngine(config *NodesConfig) (*Engine, error) {
 	eng := Engine{Config: config}
-    eng.SystemCriteria = make(CriteriaSet)
+	eng.SystemCriteria = &CriteriaSet{}
 	eng.SetLogger(eng.NewLogger("engine"))
 
 	if dir, err := filepath.Abs(filepath.Dir(os.Args[0])); err != nil {

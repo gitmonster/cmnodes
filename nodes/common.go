@@ -29,7 +29,6 @@ type Node interface {
 	IsChildAllowed(typeName string) bool
 	SetParentId(parentId string)
 	GetParentId() string
-	MustRegisterRoute() bool
 	Move(parentId string) error
 	SetName(name string)
 	Apply(crit *Criteria) error

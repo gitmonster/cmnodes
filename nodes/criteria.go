@@ -97,6 +97,12 @@ func (c *Criteria) WithParentId(parentId string) *Criteria {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) HasParentId() bool {
+	_, ok := c.theMap["p"]
+	return ok
+}
+
+////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) GetParentId() string {
 	if ob, ok := c.theMap["p"]; ok {
 		return ob.(string)
