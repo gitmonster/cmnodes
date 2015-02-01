@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
+	"gopkg.in/mgo.v2/bson"
 	"labix.org/v2/mgo"
 )
 
@@ -32,6 +33,18 @@ func (p MongoSessionProvider) GetMgoSession(collName string) (*mgo.Session, *mgo
 func GetTypeName(node interface{}) string {
 	t := reflect.TypeOf(node)
 	return strings.ToLower(t.Name())
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func BsonTransfer(src, target interface{}) error {
+	if buf, err := bson.Marshal(src); err != nil {
+		return fmt.Errorf("BsonTransfer :: marshal error : %s", err)
+	} else {
+		if err := bson.Unmarshal(buf, target); err != nil {
+			return fmt.Errorf("BsonTransfer :: unmarshal error : %s", err)
+		}
+	}
+	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

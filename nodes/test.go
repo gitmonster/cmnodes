@@ -1,6 +1,10 @@
 package nodes
 
-import "path"
+import (
+	"path"
+
+	"github.com/gitmonster/cmnodes/helper"
+)
 
 func (e *Engine) Test() error {
 
@@ -8,7 +12,12 @@ func (e *Engine) Test() error {
 	if err := set.LoadFromFile(path.Join(e.StartupDir, "system.toml")); err != nil {
 		return err
 	}
-	Inspect(set)
+
+	if ex, err := e.NodeExists(&set.Criteriae[0]); err != nil {
+		return err
+	} else {
+		helper.Inspect(ex)
+	}
 
 	return nil
 }

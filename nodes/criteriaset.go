@@ -1,17 +1,19 @@
 package nodes
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 
 	"github.com/BurntSushi/toml"
-	"gopkg.in/validator.v2"
+	"github.com/denkhaus/validator"
 )
 
 type CriteriaSet struct {
 	Scope      string     `toml:"Scope" validate:"nonzero"`
-	Criterias  []Criteria `toml:"Criteria"`
+	Criteriae  []Criteria `toml:"Criteria"`
 	Prototypes []Criteria `toml:"Prototype"`
+	Loggable
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -19,8 +21,34 @@ func (c *CriteriaSet) Load(data string) error {
 	if _, err := toml.Decode(data, c); err != nil {
 		return err
 	}
+
 	if err := validator.Validate(c); err != nil {
 		return err
+	}
+
+	fn := func(cr *Criteria) error {
+		if cr.Scope == EMPTY_STRING {
+			cr.Scope = c.Scope
+		}
+
+		if err := validator.Validate(cr); err != nil {
+			return fmt.Errorf("CriteriaSet:Load :: validation error %s :", err)
+		}
+
+		return nil
+	}
+
+	for idx, p := range c.Prototypes {
+		if err := fn(&p); err != nil {
+			return err
+		}
+		c.Prototypes[idx] = p
+	}
+	for idx, cr := range c.Criteriae {
+		if err := fn(&cr); err != nil {
+			return err
+		}
+		c.Criteriae[idx] = cr
 	}
 	return nil
 }
@@ -30,7 +58,6 @@ func (c *CriteriaSet) LoadFromFile(path string) error {
 	if _, err := os.Stat(path); err != nil {
 		return err
 	}
-
 	if buf, err := ioutil.ReadFile(path); err != nil {
 		return err
 	} else {
@@ -40,36 +67,31 @@ func (c *CriteriaSet) LoadFromFile(path string) error {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (c *CriteriaSet) Ensure(force bool, e *Engine) error {
-	// load prototypes first
-	for _, p := range c.Prototypes {
-		if !p.HasScope() {
-			p.WithScope(c.Scope)
-		}
-		if err := validator.Validate(p); err != nil {
+	fn := func(cr Criteria) error {
+		c.Logger.Infof("CriteriaSet:Ensure :: check if node %s already exists.", cr)
+		if ex, err := e.NodeExists(&cr); err != nil {
 			return err
-		}
-		if ex, err := e.NodeExists(&p); err != nil {
-			return nil
 		} else if !ex {
-			if _, err := e.CreateNode(&p, false); err != nil {
+			c.Logger.Infof("CriteriaSet:Ensure :: node does not exist, create new one.")
+			if _, err := e.CreateNode(&cr, false); err != nil {
 				return err
 			}
+		} else {
+			c.Logger.Infof("CriteriaSet:Ensure :: node already exists.")
+		}
+
+		return nil
+	}
+
+	// important:load prototypes first
+	for _, p := range c.Prototypes {
+		if err := fn(p); err != nil {
+			return err
 		}
 	}
-	for _, c := range c.Criterias {
-		if !c.HasScope() {
-			c.WithScope(c.Scope)
-		}
-		if err := validator.Validate(c); err != nil {
+	for _, c := range c.Criteriae {
+		if err := fn(c); err != nil {
 			return err
-		}
-		if ex, err := e.NodeExists(&c); err != nil {
-			return nil
-		} else if !ex {
-			// abort if prototype does not exist.
-			if _, err := e.CreateNode(&c, true); err != nil {
-				return err
-			}
 		}
 	}
 

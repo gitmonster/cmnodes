@@ -1,66 +1,81 @@
 
-Scope = "System"
+Scope = "nodes"
 
 [[Criteria]]
-Id = "54bc1c73618ccf2345600005"
-Name= "System"
-ParentId = ""
-NodeType = "sitenode"
-RegisterRoute = true
-Order = 99
-
-[[Criteria]]
-Id = "54bc1c73618cfc345c00fc34"
-Name= "Content"
-ParentId = "54bc1c73618ccf2345600005"
-NodeType = "foldernode"
-RegisterRoute = false
-Order = 0
-
-[[Criteria]]
-Id = "54bc1c73618cc458cc0567f5"
-Name= "Templates"
-ParentId = "54bc1c73618ccf2345600005"
-NodeType = "foldernode"
-RegisterRoute = false
-Order = 1
-
-[[Criteria]]
-Id = "54bc1c3456cdf458cc000453"
-Name= "Prototypes"
-ParentId = "54bc1c73618ccf2345600005"
-NodeType = "foldernode"
-Order = 2
-
-[[Prototype]]
-Name= "Site"
-ParentId = "54bc1c3456cdf458cc000453"
-NodeType = "prototypenode"
-RegisterRoute = true
-Order = 0
-	[[Prototype.Data]]
+	[Criteria.Base]
+	Id = "54bc1c73618ccf2345600005"
+	Name= "System"
+	ParentId = ""
 	NodeType = "sitenode"
 	RegisterRoute = true
-	
+	Order = 99
+
+[[Criteria]]
+	[Criteria.Base]
+	Id = "54bc1c73618cfc345c00fc34"
+	Name= "Content"
+	ParentId = "54bc1c73618ccf2345600005"
+	NodeType = "foldernode"
+	RegisterRoute = false
+	Order = 0
+
+[[Criteria]]
+	[Criteria.Base]
+	Id = "54bc1c73618cc458cc0567f5"
+	Name= "Templates"
+	ParentId = "54bc1c73618ccf2345600005"
+	NodeType = "foldernode"
+	RegisterRoute = false
+	Order = 1
+
+[[Criteria]]
+	[Criteria.Base]
+	Id = "54bc1c3456cdf458cc000453"
+	Name= "Prototypes"
+	ParentId = "54bc1c73618ccf2345600005"
+	NodeType = "foldernode"
+	Order = 2
+
+####################################### Prototypes #####################################
 
 [[Prototype]]
-Name= "Folder"
-ParentId = "54bc1c3456cdf458cc000453"
-NodeType = "prototypenode"
-RegisterRoute = true
-Order = 1
-	[[Prototype.Data]]
+	[Prototype.Base]
+	Id = "54bc1c73546adf58c12567f5"
+	Name= "Site"
+	ParentId = "54bc1c3456cdf458cc000453"
+	NodeType = "prototypenode"
+	RegisterRoute = true
+	Order = 0
+	
+	[Prototype.Template]
+	Name = "SideNode"
+	NodeType = "sitenode"
+	RegisterRoute = true
+
+[[Prototype]]
+	[Prototype.Base]
+	Id = "54bc1c73546afa479dedf7f5"
+	Name= "Folder"
+	ParentId = "54bc1c3456cdf458cc000453"
+	NodeType = "prototypenode"
+	RegisterRoute = true
+	Order = 1
+
+	[Prototype.Template]
 	Name = "FolderNode"
 	NodeType = "foldernode"
 	RegisterRoute = false
 
 [[Prototype]]
-Name= "Text"
-ParentId = "54bc1c3456cdf458cc000453"
-NodeType = "prototypenode"
-RegisterRoute = true
-Order = 2
-	[[Prototype.Data]]
+	[Prototype.Base]
+	Id = "4ad489154bcafa479dedf7f5"
+	Name= "Text"
+	ParentId = "54bc1c3456cdf458cc000453"
+	NodeType = "prototypenode"
+	RegisterRoute = true
+	Order = 2
+
+	[Prototype.Template]
 	Name = "TextNode"
 	NodeType = "textnode"
 	RegisterRoute = false
@@ -68,27 +83,29 @@ Order = 2
 
 
 [[Prototype]]
-Name= "Style"
-ParentId = "54bc1c3456cdf458cc000453"
-NodeType = "prototypenode"
-Order = 3
-	[[Prototype.Data]]
+	[Prototype.Base]
+	Id = "4ad48916890edf54bcadf7f5"
+	Name= "Style"
+	ParentId = "54bc1c3456cdf458cc000453"
+	NodeType = "prototypenode"
+	Order = 3
+
+	[Prototype.Template]
 	Name = "StyleNode"
 	NodeType = "stylenode"
 	RegisterRoute = false
 	MimeType = "text/css"
 	
 [[Prototype]]
-Name= "File"
-ParentId = "54bc1c3456cdf458cc000453"
-NodeType = "prototypenode"
-Order = 3
-	[[Prototype.Data]]
+	[Prototype.Base]
+	Id = "43684ad4891fdc689cadf7f5"
+	Name= "File"
+	ParentId = "54bc1c3456cdf458cc000453"
+	NodeType = "prototypenode"
+	Order = 3
+
+	[Prototype.Template]
 	Name = "FileNode"
 	NodeType = "filenode"
-	RegisterRoute = true
-	
-	
-	
-	
+	RegisterRoute = true		
 	

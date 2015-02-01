@@ -4,24 +4,26 @@ import (
 	"bufio"
 	"time"
 
+	"github.com/gitmonster/cmnodes/helper"
 	"github.com/gorilla/mux"
 )
 
 const (
 	EMPTY_STRING = ""
+	TAG_DISMISS  = "-"
 )
 
 type BaseData struct {
-	Id       string         `bson:"_id" toml:"Id" validate:"nonzero"`
-	ParentId string         `bson:"p" toml:"ParentId"`
-	Name     string         `bson:"nm" toml:"Name" validate:"nonzero"`
-	Order    int            `bson:"o" toml:"Order"`
-	MimeType string         `bson:"m" toml:"MimeType"`
-	TypeName string         `bson:"tn" toml:"TypeName" validate:"nonzero"`
-	Route    string         `bson:"rt" toml:"Route"`
-	RegRoute bool           `bson:"rr" toml:"RegisterRoute"`
-	EditRep  Representation `bson:"er" toml:"-"`
-	Scope    string         `bson:"sp" toml:"sp" validate:"nonzero"`
+	Id       string         `bson:"_id,omitempty" toml:"Id" validate:"nonzero"`
+	ParentId string         `bson:"p,omitempty" toml:"ParentId"`
+	Name     string         `bson:"nm,omitempty" toml:"Name" validate:"nonzero"`
+	Order    int            `bson:"o,omitempty" toml:"Order"`
+	MimeType string         `bson:"m,omitempty" toml:"MimeType"`
+	NodeType string         `bson:"nt,omitempty" toml:"NodeType" validate:"nonzero"`
+	Route    string         `bson:"rt,omitempty" toml:"Route"`
+	RegRoute bool           `bson:"rr,omitempty" toml:"RegisterRoute"`
+	EditRep  Representation `bson:"er,omitempty" toml:"-"`
+	Scope    string         `bson:"sp,omitempty" toml:"sp" validate:"nonzero"`
 }
 
 type Node interface {
@@ -60,10 +62,10 @@ const (
 )
 
 var (
-	NODETYPE_SITE   = GetTypeName(SiteNode{})
-	NODETYPE_TEXT   = GetTypeName(TextNode{})
-	NODETYPE_STYLE  = GetTypeName(StyleNode{})
-	NODETYPE_FOLDER = GetTypeName(FolderNode{})
+	NODETYPE_SITE   = helper.GetTypeName(SiteNode{})
+	NODETYPE_TEXT   = helper.GetTypeName(TextNode{})
+	NODETYPE_STYLE  = helper.GetTypeName(StyleNode{})
+	NODETYPE_FOLDER = helper.GetTypeName(FolderNode{})
 )
 
 // 	acct.Path("/profile").HandlerFunc(ProfileHandler)

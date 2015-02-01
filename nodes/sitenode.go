@@ -8,7 +8,7 @@ import (
 type SiteNode struct {
 	NodeBase    `bson:",inline"`
 	Domain      string `bson:"dm"`
-	EntryNodeId string `bson:"etr"`
+	EntryNodeId string `bson:"eid"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////

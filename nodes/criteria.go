@@ -1,166 +1,97 @@
 package nodes
 
-import "labix.org/v2/mgo/bson"
+import (
+	"fmt"
+
+	"github.com/gitmonster/cmnodes/helper"
+
+	"labix.org/v2/mgo/bson"
+)
 
 type Criteria struct {
-	BaseData `toml:"-"`
-	theMap   bson.M   `toml:"-"`
-	Data     BaseData `toml:"Data"` //Payload for PrototypeNodes
+	BaseData `bson:",inline" toml:"Base"`
+	//Payload for PrototypeNodes
+	Template BaseData `bson:"tp,omitempty" toml:"Template" validate:"-"`
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+func (c Criteria) String() string {
+	return fmt.Sprintf("Criteria with Id '%s' and NodeType '%s' and Name '%s'", c.Id, c.NodeType, c.Name)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithProtoNodeType(nodeType string) *Criteria {
-	if !c.HasProtoData() {
-		c.Data = BaseData{TypeName: nodeType}
-	}
-
-	c.theMap["pr"] = bson.M{
-		"tn": nodeType,
+	if !c.HasTemplate() {
+		c.Template = BaseData{NodeType: nodeType}
 	}
 	return c
 }
 
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) HasProtoData() bool {
-	return c.Data != BaseData{}
+//////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) HasTemplate() bool {
+	return c.Template != BaseData{}
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithScope(scope string) *Criteria {
 	c.Scope = scope
-	c.theMap["sp"] = scope
+	return c
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+func (c *Criteria) WithMimeType(mimeType string) *Criteria {
+	c.MimeType = mimeType
 	return c
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) HasScope() bool {
-	_, ok := c.theMap["sp"]
-	return ok
+func (c *Criteria) WithNewObjectId() *Criteria {
+	c.Id = bson.NewObjectId().Hex()
+	return c
 }
 
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) GetScope() string {
-	if ob, ok := c.theMap["sp"]; ok {
-		return ob.(string)
-	}
-
-	panic("Criteria:: Scope is not yet defined!")
-}
-
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithObjectId(id string) *Criteria {
 	c.Id = id
-	c.theMap["_id"] = id
 	return c
 }
 
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) HasObjectId() bool {
-	_, ok := c.theMap["_id"]
-	return ok
-}
-
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) GetObjectId() string {
-	if ob, ok := c.theMap["_id"]; ok {
-		return ob.(string)
-	}
-	panic("Criteria:: Id is not yet defined!")
-}
-
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) HasName() bool {
-	_, ok := c.theMap["nm"]
-	return ok
-}
-
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithName(name string) *Criteria {
 	c.Name = name
-	c.theMap["nm"] = name
 	return c
 }
 
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) GetName() string {
-	if ob, ok := c.theMap["nm"]; ok {
-		return ob.(string)
-	}
-	panic("Criteria:: Name is not yet defined!")
-}
-
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithParentId(parentId string) *Criteria {
 	c.ParentId = parentId
-	c.theMap["p"] = parentId
 	return c
 }
 
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) HasParentId() bool {
-	_, ok := c.theMap["p"]
-	return ok
-}
-
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) GetParentId() string {
-	if ob, ok := c.theMap["p"]; ok {
-		return ob.(string)
-	}
-	panic("Criteria:: ParentId is not yet defined!")
-}
-
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithOrder(order int) *Criteria {
 	c.Order = order
-	c.theMap["o"] = order
 	return c
 }
 
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) HasOrder() bool {
-	_, ok := c.theMap["o"]
-	return ok
-}
-
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) GetOrder() int {
-	if ob, ok := c.theMap["o"]; ok {
-		return ob.(int)
-	}
-	panic("Criteria:: Order is not yet defined!")
-}
-
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) WithNodeType(nodeType string) *Criteria {
-	c.TypeName = nodeType
-	c.theMap["tn"] = nodeType
+	c.NodeType = nodeType
 	return c
-}
-
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) HasNodeType() bool {
-	_, ok := c.theMap["tn"]
-	return ok
-}
-
-////////////////////////////////////////////////////////////////////////////////
-func (c *Criteria) GetNodeType() string {
-	if ob, ok := c.theMap["tn"]; ok {
-		return ob.(string)
-	}
-	panic("Criteria:: NodeType is not yet defined!")
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func (c *Criteria) GetSelector() bson.M {
-	return c.theMap
+	sel := bson.M{}
+	if err := helper.BsonTransfer(*c, &sel); err != nil {
+		panic(fmt.Sprintf("Criteria:GetSelector :: %s", err))
+	}
+
+	return sel
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func NewCriteria(scope string) *Criteria {
-	cr := Criteria{}
-	cr.theMap = bson.M{}
-	cr.WithScope(scope)
-	return &cr
+	cr := &Criteria{}
+	return cr.WithScope(scope)
 }

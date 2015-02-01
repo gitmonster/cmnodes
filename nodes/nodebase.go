@@ -3,6 +3,7 @@ package nodes
 import (
 	"bufio"
 
+	"github.com/gitmonster/cmnodes/helper"
 	"github.com/gitmonster/cmnodes/render"
 	"labix.org/v2/mgo/bson"
 )
@@ -16,34 +17,15 @@ type NodeBase struct {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) Init(inst interface{}, e *Engine) {
-	n.TypeName = GetTypeName(inst)
-	n.SetLogger(e.NewLogger(n.TypeName))
+	n.NodeType = helper.GetTypeName(inst)
+	n.SetLogger(e.NewLogger(n.NodeType))
 	n.Render = render.New()
 	n.Engine = e
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) Apply(crit *Criteria) error {
-	if crit.HasObjectId() {
-		n.Id = crit.GetObjectId()
-	}
-	if crit.HasScope() {
-		n.Scope = crit.GetScope()
-	}
-	if crit.HasName() {
-		n.Name = crit.GetName()
-	}
-	if crit.HasNodeType() {
-		n.TypeName = crit.GetNodeType()
-	}
-	if crit.HasOrder() {
-		n.Order = crit.GetOrder()
-	}
-	if crit.HasParentId() {
-		n.ParentId = crit.GetParentId()
-	}
-
-	return nil
+	return helper.BsonTransfer(crit.BaseData, &n.BaseData)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,7 +95,7 @@ func (n *NodeBase) EnumerateChilds(fn EnumFunc) error {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (n *NodeBase) Move(parentId string) error {
-	return n.Engine.MoveNode(n.Scope, n.TypeName, n.Id, parentId)
+	return n.Engine.MoveNode(n.Scope, n.NodeType, n.Id, parentId)
 }
 
 ////////////////////////////////////////////////////////////////////////////////

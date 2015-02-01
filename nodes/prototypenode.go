@@ -3,12 +3,13 @@ package nodes
 import (
 	"net/http"
 
+	"github.com/gitmonster/cmnodes/helper"
 	"github.com/gorilla/mux"
 )
 
 type PrototypeNode struct {
 	NodeBase `bson:",inline"`
-	Proto    BaseData `bson:"pr"`
+	Template BaseData `bson:"tp"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,6 +23,15 @@ func init() {
 ////////////////////////////////////////////////////////////////////////////////
 func (n *PrototypeNode) IsChildAllowed(typeName string) bool {
 	return false
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func (n *PrototypeNode) Apply(crit *Criteria) error {
+	if err := helper.BsonTransfer(crit.Template, &n.Template); err != nil {
+		return err
+	}
+
+	return n.NodeBase.Apply(crit)
 }
 
 ////////////////////////////////////////////////////////////////////////////////

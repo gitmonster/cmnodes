@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/codegangsta/negroni"
+	"github.com/gitmonster/cmnodes/helper"
 	"github.com/gorilla/mux"
 	"github.com/rcrowley/go-metrics"
 	"github.com/rcrowley/go-metrics/librato"
@@ -21,7 +22,7 @@ type EngineFunc func(engine *Engine) error
 
 type Engine struct {
 	Loggable
-	MongoSessionProvider
+	helper.MongoSessionProvider
 	negroni        *negroni.Negroni
 	Config         *NodesConfig
 	SystemCriteria *CriteriaSet
@@ -42,7 +43,7 @@ type NewNodeFunc func(engine *Engine) Node
 
 ////////////////////////////////////////////////////////////////////////////////
 func RegisterNodeType(node interface{}, fn NewNodeFunc) {
-	TypeMap[GetTypeName(node)] = fn
+	TypeMap[helper.GetTypeName(node)] = fn
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -243,16 +244,16 @@ func (e *Engine) CreateNode(crit *Criteria, abortNoPrototype bool) (Node, error)
 		return nil, err
 	}
 
-	if node, err := e.CreateInstanceByType(crit.GetNodeType(), abortNoPrototype); err != nil {
+	if node, err := e.CreateInstanceByType(crit.NodeType, abortNoPrototype); err != nil {
 		return nil, err
 	} else {
-		session, coll := e.GetMgoSession(crit.GetScope())
+		session, coll := e.GetMgoSession(crit.Scope)
 		defer session.Close()
 
 		if err := node.Apply(crit); err != nil {
 			return nil, err
 		}
-		if _, err := coll.UpsertId(node.GetObjectId(), node); err != nil {
+		if _, err := coll.UpsertId(crit.Id, node); err != nil {
 			return nil, err
 		}
 
@@ -359,6 +360,7 @@ func (e *Engine) ImportSystem(force bool, filePath string) error {
 		filePath = path.Join(e.StartupDir, "system.toml")
 	}
 
+	e.Logger.Infof("Import System from path %s", filePath)
 	set := e.SystemCriteria
 	if err := set.LoadFromFile(filePath); err != nil {
 		return err
@@ -372,17 +374,15 @@ func (e *Engine) ImportSystem(force bool, filePath string) error {
 
 ////////////////////////////////////////////////////////////////////////////////
 func (e *Engine) NodeExists(crit *Criteria) (bool, error) {
-	session, coll := e.GetMgoSession(crit.GetScope())
+	session, coll := e.GetMgoSession(crit.Scope)
 	defer session.Close()
 
-	query := coll.FindId(crit.GetSelector())
+	query := coll.Find(crit.GetSelector())
 	if cnt, err := query.Count(); err != nil {
 		return false, err
-	} else if cnt > 0 {
-		return true, nil
+	} else {
+		return cnt > 0, nil
 	}
-
-	return false, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -393,8 +393,10 @@ func (e *Engine) Execute(fn EngineFunc) error {
 ////////////////////////////////////////////////////////////////////////////////
 func NewEngine(config *NodesConfig) (*Engine, error) {
 	eng := Engine{Config: config}
-	eng.SystemCriteria = &CriteriaSet{}
 	eng.SetLogger(eng.NewLogger("engine"))
+
+	eng.SystemCriteria = &CriteriaSet{}
+	eng.SystemCriteria.SetLogger(eng.NewLogger("criteriaset"))
 
 	if dir, err := filepath.Abs(filepath.Dir(os.Args[0])); err != nil {
 		return nil, err
