@@ -1,93 +1,67 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Denkhaus - CmNodes</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="mobile-web-app-capable" content="yes">
-    
+
     <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
     <link rel="import" href="bower_components/core-scaffold/core-scaffold.html">
-    <link rel="import" href="bower_components/core-header-panel/core-header-panel.html">
-    <link rel="import" href="src/cmnodes-editor.html">
-    <link rel="import" href="src/cmnodes-treeview.html">
-      <style>
 
-    html, body {
-      height: 100%;
-      margin: 0;
-    }
-  
-    body {
-      font-family: sans-serif;
-    }
-    
-    core-scaffold {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-    core-toolbar{
-        background-color: #526E9C; 
-        color: #fff;
-    }
-    .content {
-      background-color: #fff;
-      height: 5000px;
-      padding: 20px;
-    }
-    
-    /* some default styles for mode="cover" on core-scaffold */
-    core-scaffold[mode=cover]::shadow core-header-panel::shadow #mainContainer {
-      left: 120px;
-    }
-    
-    core-scaffold[mode=cover] .content {
-      margin: 20px 100px 20px 0;
-    }
-    
-  </style>
+    <link rel="import" href="bower_components/core-header-panel/core-header-panel.html">
+    <link rel="import" href="src/cmnodes-maintabs.html">
+    <link rel="import" href="src/cmnodes-treeview.html">
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            font-family: sans-serif;
+        }
+        core-scaffold {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+        core-toolbar {
+            background-color: #526E9C;
+            color: #fff;
+        }
+        .content {
+            background-color: #fff;
+            height: 5000px;
+            padding: 20px;
+        }
+        /* some default styles for mode="cover" on core-scaffold */
+        
+        core-scaffold[mode=cover]::shadow core-header-panel::shadow #mainContainer {
+            left: 120px;
+        }
+        core-scaffold[mode=cover] .content {
+            margin: 20px 100px 20px 0;
+        }
+    </style>
 </head>
-   <body unresolved>
-  <core-scaffold>
-    <core-header-panel navigation flex mode="seamed">
-      <core-toolbar>Denkhaus</core-toolbar>
-      <cmnodes-treeview data-src='{
-    "name": "tree", 
-    "expanded": true,
-    "icon":"settings",
-    "children": [{ 
-        "name": "child", 
-        "expanded": false,
-        "icon":"settings",
-        "children": [
-            {
-                "name": "grandchild",
-                "expanded": false,
-                "icon":"settings",
-                "children": [
-                    {
-                        "name": "grandgrandchild3",
-                        "expanded": false,
-                        "icon":"settings"
-                    },
-                    {
-                        "name": "grandgrandchild2",
-                        "expanded": false,
-                        "icon":"settings"
-                    }
-                ]
-            }
-        ]
-    }]
-}'></cmnodes-treeview>
-    </core-header-panel>
-    <div tool>Title</div>
-    <div class="content"><cmnodes-editor></cmnodes-editor></div>
-  </core-scaffold>
-  
+
+<body unresolved>
+    <core-scaffold>
+        <core-header-panel navigation flex mode="seamed">
+            <core-toolbar>Denkhaus</core-toolbar>
+            <cmnodes-treeview url='treedata.json'></cmnodes-treeview>
+        </core-header-panel>
+        <div tool>Title</div>
+        <div class="content">
+            <cmnodes-maintabs></cmnodes-maintabs>
+        </div>
+    </core-scaffold>
+
 
 </body>
+
 </html>

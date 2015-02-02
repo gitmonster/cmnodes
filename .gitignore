@@ -1,7 +1,7 @@
 web/bower_components/
 web/node_modules/
 web/npm-debug.log
-
+web/dist
 temp.toml
 cmnodes
 

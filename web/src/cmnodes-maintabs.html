@@ -1,13 +1,17 @@
- <!-- Import Polymer -->
+<!-- Import Polymer -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
-
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <!-- Define your custom element -->
-<polymer-element name="cmnodes-editor">
-<template>
-    content goes here...
-</template>
+<polymer-element name="cmnodes-maintabs">
+    <template>
+        <paper-tabs selected="0">
+            <paper-tab>TAB 1</paper-tab>
+            <paper-tab>TAB 2</paper-tab>
+            <paper-tab>TAB 3</paper-tab>
+        </paper-tabs>
+    </template>
     <script>
-        Polymer('cmnodes-editor', {
+        Polymer('cmnodes-maintabs', {
             // Fires when an instance of the element is created
             created: function() {},
 
@@ -26,5 +30,6 @@
             // Fires when an attribute was added, removed, or updated
             attributeChanged: function(attr, oldVal, newVal) {}
         });
-    </script> 
+    </script>
+
 </polymer-element>

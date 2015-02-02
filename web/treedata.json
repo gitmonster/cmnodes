@@ -1,0 +1,24 @@
+{
+    "name": "tree",
+    "expanded": true,
+    "icon": "settings",
+    "children": [{
+        "name": "child",
+        "expanded": false,
+        "icon": "settings",
+        "children": [{
+            "name": "grandchild",
+            "expanded": false,
+            "icon": "settings",
+            "children": [{
+                "name": "grandgrandchild3",
+                "expanded": false,
+                "icon": "settings"
+            }, {
+                "name": "grandgrandchild2",
+                "expanded": false,
+                "icon": "settings"
+            }]
+        }]
+    }]
+}

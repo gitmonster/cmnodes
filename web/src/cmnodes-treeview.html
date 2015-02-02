@@ -2,14 +2,14 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-menu/core-menu.html">
 <link rel="import" href="../bower_components/core-item/core-item.html">
-
-<polymer-element name="cmnodes-treeview" attributes="data-src">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+<polymer-element name="cmnodes-treeview" attributes="url">
     <template>
         <style>
-            core-item[expanded]:before{
+            core-item[expanded]:before {
                 content: '-';
             }
-            core-item[collapsed]:before{
+            core-item[collapsed]:before {
                 content: '+';
             }
             core-item {
@@ -17,37 +17,43 @@
                 min-height: 0px;
             }
         </style>
-        <div id="main" unresolved="">
-            <template id="tree_template" bind="{{data}}">
-             <core-menu>
-                     <core-item icon="{{ icon }}" label="{{ name }}"
-                        collapsed?="{{ !expanded }}" expanded?="{{expanded }}"
-                        on-tap="{{ toggle }}">
-                     </core-item>
-                    <template if="{{expanded}}" repeat="{{ child in children }}" >
-                        <template ref="tree_template" bind="{{child}}"></template>
-                    </template>
-             </core-menu>
-            </template>
-        </div>
+        <core-ajax id="ajax" handleAs="json" url="{{url}}" on-core-response="{{handleResponse}}" loading="{{loading}}">
+        </core-ajax>
+        <template if="{{loading}}">
+            Loading...
+        </template>
+        <template id="tree_template" if="{{!loading}}" bind="{{data}}">
+            <core-menu>
+                <core-item icon="{{ icon }}" label="{{ name }}" collapsed?="{{ !expanded }}" expanded?="{{expanded }}" on-tap="{{ toggle }}">
+                </core-item>
+                <template if="{{expanded}}" repeat="{{ child in children }}">
+                    <template ref="tree_template" bind="{{child}}"></template>
+                </template>
+            </core-menu>
+        </template>
+
     </template>
     <script>
         Polymer('cmnodes-treeview', {
             data: {},
-            toggle: function(e, detail, sender){
+            toggle: function(e, detail, sender) {
                 var m = e.target.templateInstance.model;
-                m['expanded'] = !m['expanded']; 
+                m['expanded'] = !m['expanded'];
             },
             // Fires when an instance of the element is created
             created: function() {},
-
+            handleResponse: function(e) {
+                this.data = e.detail.response;
+            },
             // Fires when the "<polymer-element>" has been fully prepared
-              ready: function() {
-                if (this.dataset.src) {
-                    this.data = JSON.parse(this.dataset.src);
-                }
-                this.$.main.setAttribute('resolved', '');
-                this.$.main.removeAttribute('unresolved');
+            ready: function() {
+                this.$.ajax.go();
+
+                // if (this.dataset.src) {
+                //     this.data = JSON.parse(this.dataset.src);
+                // }
+                // this.$.main.setAttribute('resolved', '');
+                // this.$.main.removeAttribute('unresolved');
             },
 
             // Fires when the element’s initial set of children and siblings are guaranteed to exist
