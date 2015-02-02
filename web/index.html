@@ -53,20 +53,30 @@
    <body unresolved>
   <core-scaffold>
     <core-header-panel navigation flex mode="seamed">
-      <core-toolbar>Denkhaus CmNodes</core-toolbar>
+      <core-toolbar>Denkhaus</core-toolbar>
       <cmnodes-treeview data-src='{
     "name": "tree", 
-    "cv": true,
+    "expanded": true,
+    "icon":"settings",
     "children": [{ 
         "name": "child", 
-        "cv": false,
+        "expanded": false,
+        "icon":"settings",
         "children": [
             {
                 "name": "grandchild",
-                "cv": true,
+                "expanded": false,
+                "icon":"settings",
                 "children": [
                     {
-                        "name": "grandgrandchild"
+                        "name": "grandgrandchild3",
+                        "expanded": false,
+                        "icon":"settings"
+                    },
+                    {
+                        "name": "grandgrandchild2",
+                        "expanded": false,
+                        "icon":"settings"
                     }
                 ]
             }
