@@ -1,19 +1,19 @@
 {
-  "name": "cmnodes-web",
+  "name": "cmnodes",
   "version": "0.0.0",
   "homepage": "https://github.com/gitmonster/cmnodes",
   "authors": [
     "denkhaus <peristaltic@gmx.net>"
   ],
-  "description": "the web-gui behind cmnodes",
+  "description": "web-gui for cmnodes",
   "main": "index.html",
   "moduleType": [
     "amd"
   ],
   "keywords": [
+    "polymer",
     "cms",
-    "golang",
-    "polymer"
+    "golang"
   ],
   "license": "MIT",
   "private": true,
@@ -26,6 +26,7 @@
   ],
   "dependencies": {
     "core-elements": "Polymer/core-elements#~0.5.4",
-    "paper-elements": "Polymer/paper-elements#~0.5.4"
+    "paper-elements": "Polymer/paper-elements#~0.5.4",
+    "polymer": "Polymer/polymer#~0.5.4"
   }
 }
