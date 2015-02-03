@@ -26,10 +26,11 @@
             background-color: #526E9C;
             color: #fff;
         }
-        .content {
+        cmnodes-maincontent {
             background-color: #fff;
         }
         /* some default styles for mode="cover" on core-scaffold */
+        
         core-scaffold[mode=cover]::shadow core-header-panel::shadow #mainContainer {
             left: 120px;
         }
@@ -40,13 +41,16 @@
 </head>
 
 <body unresolved fullbleed>
-<core-scaffold>
-  <core-header-panel navigation flex mode="seamed">
-    <core-toolbar>DenkhausApp</core-toolbar>
-       <cmnodes-treeview url='treedata.json'></cmnodes-treeview>
-  </core-header-panel>
-  <div tool>Title</div>
-  <div class="content" fit><cmnodes-maincontent></cmnodes-maincontent></div>
-</core-scaffold>
+    <core-scaffold>
+        <core-header-panel navigation flex mode="seamed">
+            <core-toolbar>DenkhausApp</core-toolbar>
+            <cmnodes-treeview url='treedata.json'></cmnodes-treeview>
+        </core-header-panel>
+        <div tool>Title</div>
+
+        <cmnodes-maincontent fit></cmnodes-maincontent>
+
+    </core-scaffold>
 </body>
+
 </html>

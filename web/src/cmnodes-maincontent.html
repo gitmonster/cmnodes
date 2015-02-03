@@ -6,17 +6,19 @@
 
 
 <polymer-element name="cmnodes-maincontent">
-<style>
-</style>
-<template>
-    <div vertical>
-        <div >
-            <cmnodes-maintabs></cmnodes-maintabs>
+    <style>
+    </style>
+    <template>
+        <div vertical>
+            <div>
+                <cmnodes-maintabs></cmnodes-maintabs>
+            </div>
+            <core-splitter direction="up"></core-splitter>
+            <div flex>
+                <cmnodes-eventview></cmnodes-eventview>
+            </div>
         </div>
-        <core-splitter direction="up"></core-splitter>
-        <div flex ><cmnodes-eventview></cmnodes-eventview></div>
-    </div>
-</template>
+    </template>
 
     <script>
         Polymer('cmnodes-maincontent', {

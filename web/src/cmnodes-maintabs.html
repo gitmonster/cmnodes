@@ -2,32 +2,43 @@
 <link rel="import" href="../lib/polymer/polymer.html">
 <link rel="import" href="../lib/paper-tabs/paper-tabs.html">
 <link rel="import" href="../lib/core-pages/core-pages.html">
-
+<link rel="import" href="../lib/core-icon/core-icon.html">
 
 
 
 
 <polymer-element name="cmnodes-maintabs">
-<style>
-    :host{
-
-    }
-</style>
+    <style>
+        :host {}
+    </style>
     <template>
-        <paper-tabs noink selected="{{selected}}" >
-  <paper-tab>Tab 1</paper-tab>
-  <paper-tab>Tab 2</paper-tab>
-  <paper-tab>Tab 3</paper-tab>
-</paper-tabs>
+        <paper-tabs id="tabs" noink selected="{{selected}}">
+            <paper-tab>
+                <div flex>Tab 1</div>
+                <core-icon icon="cancel" on-click="{{closeTab}}" style="pointer-events:all;"></core-icon>
+            </paper-tab>
+            <paper-tab>
+                <div flex>Tab 2</div>
+                <core-icon icon="cancel" on-click="{{closeTab}}" style="pointer-events:all;"></core-icon>
+            </paper-tab>
+            <paper-tab>
+                <div flex>Tab 3</div>
+                <core-icon icon="cancel" on-click="{{closeTab}}" style="pointer-events:all;"></core-icon>
+            </paper-tab>
+        </paper-tabs>
 
-<core-pages selected="{{selected}}">
-  <div>Page 1</div>
-  <div>Page 2</div>
-  <div>Page 3</div>
-</core-pages>
+        <core-pages selected="{{selected}}">
+            <div>Page 1</div>
+            <div>Page 2</div>
+            <div>Page 3</div>
+        </core-pages>
     </template>
     <script>
         Polymer('cmnodes-maintabs', {
+            closeTab: function(e, detail, sender) {
+                tabCtrl = this.$.tabs;
+
+            },
             // Fires when an instance of the element is created
             created: function() {},
 

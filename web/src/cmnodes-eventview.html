@@ -3,9 +3,16 @@
 
 <!-- Define your custom element -->
 <polymer-element name="cmnodes-eventview">
-<template>
-    <div>Event View</div>
-</template>
+    <template>
+        <style>
+            :host {
+                background-color: red;
+                display: block;
+                height: 100vh;
+            }
+        </style>
+        <div>Event View</div>
+    </template>
     <script>
         Polymer('cmnodes-eventview', {
             // Fires when an instance of the element is created
