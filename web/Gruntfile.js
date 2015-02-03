@@ -22,54 +22,46 @@ module.exports = function(grunt) {
         },
         'gh-pages': {
             options: {
-                clone: 'bower_components/cmnodes'
+                clone: 'lib/cmnodes'
             },
             src: [
-                'bower_components/**/*',
-                '!bower_components/cmnodes/**/*',
+                'lib/**/*',
+                '!lib/cmnodes/**/*',
                 'demo/*', 'src/*', 'index.html'
             ]
         },
         'copy': {
-            main: {
+            lib: {
                 files: [{
                     expand: true,
-                    cwd: 'bower_components',
+                    cwd: 'lib',
                     src: ['**/*'],
-                    dest: 'dist/vendor/'
+                    dest: 'dist/lib/'
                 }],
             },
-        },
-        'replace': {
-            index: {
-                src: ['index.html'],
-                dest: 'dist/',
-                replacements: [{
-                    from: 'bower_components',
-                    to: 'vendor'
-                }, {
-                    from: /href=\"src/g,
-                    to: 'href=\"modules'
-                }]
-            },
             modules: {
-                src: ['src/**/*'],
-                dest: 'dist/modules/',
-                replacements: [{
-                    from: 'bower_components',
-                    to: 'vendor'
-                }]
-            }
+                files: [{
+                    expand: true,
+                    cwd: 'src',
+                    src: ['**/*'],
+                    dest: 'dist/src/'
+                }],
+            },
+            index: {
+                files: [{
+                    src: ['index.html'],
+                    dest: 'dist/'
+                }],
+            },
         }
     });
-
+    
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-gh-pages');
-    grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-contrib-watch');
 
-    grunt.registerTask('build', ['replace', 'copy']);
+    grunt.registerTask('build', ['copy']);
     grunt.registerTask('deploy', ['gh-pages']);
     grunt.registerTask('default', ['build', 'connect', 'watch']);
 

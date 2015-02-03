@@ -27,6 +27,7 @@
   "dependencies": {
     "core-elements": "Polymer/core-elements#~0.5.4",
     "paper-elements": "Polymer/paper-elements#~0.5.4",
-    "polymer": "Polymer/polymer#~0.5.4"
+    "polymer": "Polymer/polymer#~0.5.4",
+    "pvc-globals": "~0.1.0"
   }
 }

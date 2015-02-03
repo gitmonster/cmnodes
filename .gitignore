@@ -1,9 +1,11 @@
+web/lib/
 web/bower_components/
 web/node_modules/
 web/npm-debug.log
 web/dist
 temp.toml
 cmnodes
+npm-debug.log
 
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
