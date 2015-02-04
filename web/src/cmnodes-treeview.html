@@ -19,14 +19,16 @@
                 min-height: 0px;
             }
         </style>
-        <core-ajax id="ajax" handleAs="json" url="{{url}}" on-core-response="{{handleResponse}}" loading="{{loading}}">
+        <core-ajax id="ajax" handleAs="json" url="{{url}}" 
+            on-core-response="{{handleResponse}}" loading="{{loading}}">
         </core-ajax>
         <template if="{{loading}}">
             Loading...
         </template>
         <template id="tree_template" if="{{!loading}}" bind="{{data}}">
             <core-menu>
-                <core-item icon="{{ icon }}" label="{{ name }}" collapsed?="{{ !expanded }}" expanded?="{{expanded }}" on-tap="{{ toggle }}">
+                <core-item icon="{{ icon }}" label="{{ name }}" 
+                    collapsed?="{{ !expanded }}" expanded?="{{expanded }}" on-tap="{{ toggle }}">
                 </core-item>
                 <template if="{{expanded}}" repeat="{{ child in children }}">
                     <template ref="tree_template" bind="{{child}}"></template>

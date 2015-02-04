@@ -1,51 +1,18 @@
-<!-- Import Polymer -->
 <link rel="import" href="../lib/polymer/polymer.html">
-<link rel="import" href="../lib/paper-tabs/paper-tabs.html">
-<link rel="import" href="../lib/core-pages/core-pages.html">
-<link rel="import" href="../lib/core-icon/core-icon.html">
-
-
-
+<link rel="import" href="cmnodes-tabctrl.html">
 
 <polymer-element name="cmnodes-maintabs">
-    <style>
-        :host {}
-    </style>
-    <template>
-        <paper-tabs id="tabs" noink selected="{{selected}}">
-            <paper-tab>
-                <div flex>Tab 1</div>
-                <core-icon icon="cancel" on-click="{{closeTab}}" style="pointer-events:all;"></core-icon>
-            </paper-tab>
-            <paper-tab>
-                <div flex>Tab 2</div>
-                <core-icon icon="cancel" on-click="{{closeTab}}" style="pointer-events:all;"></core-icon>
-            </paper-tab>
-            <paper-tab>
-                <div flex>Tab 3</div>
-                <core-icon icon="cancel" on-click="{{closeTab}}" style="pointer-events:all;"></core-icon>
-            </paper-tab>
-        </paper-tabs>
-
-        <core-pages selected="{{selected}}">
-            <div>Page 1</div>
-            <div>Page 2</div>
-            <div>Page 3</div>
-        </core-pages>
-    </template>
+   <core-ajax id="ajax" auto handleAs="json" url="../tabdata.json" response="{{tabdata}}"></core-ajax>
+   <template>
+        <cmnodes-tabctrl items="{{tabdata}}"></cmnodes-tabctrl>    
+   </template>
     <script>
         Polymer('cmnodes-maintabs', {
-            closeTab: function(e, detail, sender) {
-                tabCtrl = this.$.tabs;
-
-            },
             // Fires when an instance of the element is created
             created: function() {},
 
             // Fires when the "<polymer-element>" has been fully prepared
-            ready: function() {
-                this.selected = 0;
-            },
+            ready: function() {},
 
             // Fires when the element’s initial set of children and siblings are guaranteed to exist
             domReady: function() {},
