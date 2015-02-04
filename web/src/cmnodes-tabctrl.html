@@ -1,13 +1,14 @@
 <link rel="import" href="../lib/polymer/polymer.html">
 <link rel="import" href="../lib/paper-tabs/paper-tabs.html">
+<link rel="import" href="../lib/paper-tabs/paper-tab.html">
 <link rel="import" href="../lib/core-pages/core-pages.html">
 <link rel="import" href="../lib/core-icon/core-icon.html">
 
 <polymer-element name="cmnodes-tabctrl" attributes="items">
-   <style>
-   </style>
+    <style>
+    </style>
     <template>
-        <paper-tabs id="tctrl" noink selected="{{selected}}">
+        <paper-tabs id="tctrl" noink selected="{{selected}}" on-core-select="{{selectTab}}">
             <template repeat="{{ item in items}}">
                 <paper-tab>
                     <div flex>{{item.name}}</div>
@@ -15,18 +16,23 @@
                 </paper-tab>
             </template>
         </paper-tabs>
-        <core-pages repeat="{{ item in items}}" selected="{{selected}}">
-            <div>{{item.content}}</div>
+        <core-pages selected="{{selected}}">
+            <template repeat="{{ item in items}}">
+                <div>{{item.content}}</div>
+            </template>
         </core-pages>
     </template>
     <script>
         Polymer('cmnodes-tabctrl', {
             closeTab: function(e, detail, sender) {
-                tabCtrl = this.$.tctrl;
+                tabCtrl = this.selected;
+            },
+            selectTab: function(e, detail, sender) {
+
             },
             // Fires when an instance of the element is created
             created: function() {},
-           
+
             // Fires when the "<polymer-element>" has been fully prepared
             ready: function() {
                 this.selected = 0;
@@ -42,7 +48,9 @@
             detached: function() {},
 
             // Fires when an attribute was added, removed, or updated
-            attributeChanged: function(attr, oldVal, newVal) {}
+            attributeChanged: function(attr, oldVal, newVal) {
+                val = oldVal;
+            }
         });
     </script>
 

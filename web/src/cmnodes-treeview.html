@@ -1,9 +1,8 @@
-<!-- Import Polymer -->
 <link rel="import" href="../lib/polymer/polymer.html">
 <link rel="import" href="../lib/core-menu/core-menu.html">
 <link rel="import" href="../lib/core-item/core-item.html">
 <link rel="import" href="../lib/core-ajax/core-ajax.html">
-
+<link rel="import" href="../lib/pvc-globals/pvc-globals.html">
 
 <polymer-element name="cmnodes-treeview" attributes="url">
     <template>
@@ -19,16 +18,15 @@
                 min-height: 0px;
             }
         </style>
-        <core-ajax id="ajax" handleAs="json" url="{{url}}" 
-            on-core-response="{{handleResponse}}" loading="{{loading}}">
+        <pvc-globals namespace="tree" id="globals"></pvc-globals>
+        <core-ajax id="ajax" handleAs="json" url="{{url}}" on-core-response="{{handleResponse}}" loading="{{loading}}">
         </core-ajax>
         <template if="{{loading}}">
             Loading...
         </template>
         <template id="tree_template" if="{{!loading}}" bind="{{data}}">
             <core-menu>
-                <core-item icon="{{ icon }}" label="{{ name }}" 
-                    collapsed?="{{ !expanded }}" expanded?="{{expanded }}" on-tap="{{ toggle }}">
+                <core-item icon="{{ icon }}" label="{{ name }}" collapsed?="{{ !expanded }}" expanded?="{{expanded }}" on-tap="{{ toggle }}">
                 </core-item>
                 <template if="{{expanded}}" repeat="{{ child in children }}">
                     <template ref="tree_template" bind="{{child}}"></template>
@@ -43,6 +41,7 @@
             toggle: function(e, detail, sender) {
                 var m = e.target.templateInstance.model;
                 m['expanded'] = !m['expanded'];
+                this.$.globals.values.selectedItem = m.id;
             },
             // Fires when an instance of the element is created
             created: function() {},

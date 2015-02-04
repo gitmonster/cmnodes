@@ -1,18 +1,26 @@
 <link rel="import" href="../lib/polymer/polymer.html">
+<link rel="import" href="../lib/core-ajax/core-ajax.html">
+<link rel="import" href="../lib/pvc-globals/pvc-globals.html">
 <link rel="import" href="cmnodes-tabctrl.html">
 
 <polymer-element name="cmnodes-maintabs">
-   <core-ajax id="ajax" auto handleAs="json" url="../tabdata.json" response="{{tabdata}}"></core-ajax>
-   <template>
-        <cmnodes-tabctrl items="{{tabdata}}"></cmnodes-tabctrl>    
-   </template>
+
+    <style>
+    </style>
+    <template>
+        <pvc-globals namespace="tree" id="globals"></pvc-globals>
+        <core-ajax auto id="ajax" handleAs="json" url="../tabdata.json" response="{{tabdata}}"></core-ajax>
+        <cmnodes-tabctrl fit items="{{tabdata.data}}"></cmnodes-tabctrl>
+    </template>
     <script>
         Polymer('cmnodes-maintabs', {
             // Fires when an instance of the element is created
             created: function() {},
 
             // Fires when the "<polymer-element>" has been fully prepared
-            ready: function() {},
+            ready: function() {
+
+            },
 
             // Fires when the element’s initial set of children and siblings are guaranteed to exist
             domReady: function() {},
