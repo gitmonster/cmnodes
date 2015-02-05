@@ -1,24 +1,39 @@
 {
-    "name": "tree",
+    "name": "folder1",
     "expanded": true,
     "icon": "settings",
+    "contentId":1,
     "children": [{
-        "name": "child",
+        "name": "folder2",
         "expanded": false,
         "icon": "settings",
+        "contentId":2,
         "children": [{
-            "name": "grandchild",
+            "name": "folder3",
             "expanded": false,
             "icon": "settings",
+            "contentId":3,
             "children": [{
                 "name": "grandgrandchild3",
                 "expanded": false,
-                "icon": "settings"
+                "icon": "settings",
+                "contentId":4
             }, {
-                "name": "grandgrandchild2",
+                "name": "item1",
                 "expanded": false,
-                "icon": "settings"
+                "icon": "settings",
+                "contentId":5
             }]
+        },{
+            "name": "item2",
+            "expanded": false,
+            "icon": "settings",
+            "contentId":6
         }]
+    },{
+        "name": "item3",
+        "expanded": false,
+        "icon": "settings",
+        "contentId":7
     }]
 }

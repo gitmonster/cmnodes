@@ -4,24 +4,27 @@
 <link rel="import" href="cmnodes-tabctrl.html">
 
 <polymer-element name="cmnodes-maintabs">
-
     <style>
     </style>
     <template>
-        <pvc-globals namespace="tree" id="globals"></pvc-globals>
+        <cmnodes-hub namespace="tree" on-hub-update="{{handleUpdate}}"></cmnodes-hub>
         <core-ajax auto id="ajax" handleAs="json" url="../tabdata.json" response="{{tabdata}}"></core-ajax>
-        <cmnodes-tabctrl fit items="{{tabdata.data}}"></cmnodes-tabctrl>
+        <cmnodes-tabctrl id="tabCtrl" fit items="{{tabdata.data}}"></cmnodes-tabctrl>
     </template>
     <script>
         Polymer('cmnodes-maintabs', {
+             handleUpdate: function(e, detail, sender) {
+                 if (detail.property == "selectedId"){
+                    this.$.tabCtrl.ensureItem(detail.value);    
+                 }
+                //document.querySelector('event-log').events.push(detail)
+            },
             // Fires when an instance of the element is created
             created: function() {},
 
             // Fires when the "<polymer-element>" has been fully prepared
-            ready: function() {
-
-            },
-
+            ready: function() {},
+            
             // Fires when the element’s initial set of children and siblings are guaranteed to exist
             domReady: function() {},
 
