@@ -2,38 +2,34 @@
     "name": "folder1",
     "expanded": true,
     "icon": "settings",
-    "contentId":1,
+    "contentId": 1,
     "children": [{
         "name": "folder2",
         "expanded": false,
         "icon": "settings",
-        "contentId":2,
+        "contentId": 2,
         "children": [{
-            "name": "folder3",
+            "name": "folder2.1",
             "expanded": false,
             "icon": "settings",
-            "contentId":3,
+            "contentId": 3,
             "children": [{
-                "name": "grandgrandchild3",
-                "expanded": false,
+                "name": "item2.1.1",
                 "icon": "settings",
-                "contentId":4
+                "contentId": 4
             }, {
-                "name": "item1",
-                "expanded": false,
+                "name": "item2.1.2",
                 "icon": "settings",
-                "contentId":5
+                "contentId": 5
             }]
-        },{
+        }, {
             "name": "item2",
-            "expanded": false,
             "icon": "settings",
-            "contentId":6
+            "contentId": 6
         }]
-    },{
+    }, {
         "name": "item3",
-        "expanded": false,
         "icon": "settings",
-        "contentId":7
+        "contentId": 7
     }]
 }

@@ -13,6 +13,9 @@
             core-item[collapsed]:before {
                 content: '+';
             }
+            core-item[item]:before {
+                content: ' ';
+            }
             core-item {
                 cursor: pointer;
                 min-height: 0px;
@@ -26,21 +29,22 @@
         </template>
         <template id="tree_template" if="{{!loading}}" bind="{{data}}">
             <core-menu>
-                <core-item icon="{{ icon }}" label="{{ name }}" collapsed?="{{ !expanded }}" expanded?="{{expanded }}" on-tap="{{ toggle }}">
+                <core-item icon="{{ icon }}" label="{{ name }}" collapsed?="{{!expanded }}" expanded?="{{expanded }}" item?="{{ !children }}" on-tap="{{ toggle }}">
                 </core-item>
                 <template if="{{expanded}}" repeat="{{ child in children }}">
                     <template ref="tree_template" bind="{{child}}"></template>
                 </template>
             </core-menu>
         </template>
-
     </template>
     <script>
         Polymer('cmnodes-treeview', {
             data: {},
             toggle: function(e, detail, sender) {
                 var m = e.target.templateInstance.model;
-                m['expanded'] = !m['expanded'];
+                if (m.expanded !== undefined) {
+                    m['expanded'] = !m['expanded'];
+                }
                 this.$.globals.values.selectedItem = m.id;
             },
             // Fires when an instance of the element is created
