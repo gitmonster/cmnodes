@@ -1,10 +1,9 @@
-<!-- Import Polymer -->
 <link rel="import" href="../lib/polymer/polymer.html">
 <link rel="import" href="../lib/pvc-globals/pvc-globals.html">
 
-<polymer-element name="cmnodes-hub" attributes="namespace">
+<polymer-element name="cmnodes-hub" attributes="namespace values">
     <template>
-        <pvc-globals id="globals" namespace="{{namespace}}" 
+        <pvc-globals id="globals" namespace="{{namespace}}" values="{{values}}"
             on-pvc-globals-add="{{handleAdd}}"
             on-pvc-globals-remove="{{handleRemove}}"
             on-pvc-globals-change="{{handleChange}}"
@@ -14,17 +13,23 @@
     <script>
      (function() {
         Polymer('cmnodes-hub', {
+            init: function(){
+            },
             handleAdd: function(e, detail, sender) {
-                _fire('hub-add', detail);
+                fire('hub-add', detail);
             },
             handleRemove: function(e, detail, sender) {
+                fire('hub-remove', detail);
             },
             handleChange: function(e, detail, sender) {
+                fire('hub-change', detail);
             },
             handleUpdate: function(e, detail, sender) {
+                fire('hub-update', detail);
             },
             // Fires when an instance of the element is created
-            created: function() {},
+            created: function() {
+            },
 
             // Fires when the "<polymer-element>" has been fully prepared
             ready: function() {},
@@ -43,5 +48,4 @@
         });
      })()
     </script>
-
 </polymer-element>

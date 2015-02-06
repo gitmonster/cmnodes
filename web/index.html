@@ -11,7 +11,7 @@
     <link rel="import" href="lib/core-scaffold/core-scaffold.html">
 
     <link rel="import" href="lib/core-header-panel/core-header-panel.html">
-    <link rel="import" href="lib/pvc-globals/pvc-globals.html">
+    <link rel="import" href="src/cmnodes-hub.html">
     <link rel="import" href="src/cmnodes-maincontent.html">
     <link rel="import" href="src/cmnodes-treeview.html">
     <style>
@@ -42,7 +42,7 @@
 </head>
 
 <body unresolved fullbleed>
-    <pvc-globals id="default"></pvc-globals>
+    <cmnodes-hub id="hub"></cmnodes-hub>
     <core-scaffold>
         <core-header-panel navigation flex mode="seamed">
             <core-toolbar>DenkhausApp</core-toolbar>
@@ -51,5 +51,11 @@
         <div tool>Title</div>
         <cmnodes-maincontent fit></cmnodes-maincontent>
     </core-scaffold>
+    <script>
+        document.addEventListener('polymer-ready', function() {
+            document.getElementById('hub').init();
+        });
+    </script>
 </body>
+
 </html>
